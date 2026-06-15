@@ -149,7 +149,7 @@ const getHtml = () => `<!DOCTYPE html>
         </div>
 
         <div class="ds-card space-y-4 mb-6">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex flex-col gap-4">
                 <div>
                     <h2 class="text-lg font-semibold text-emerald-500 dark:text-emerald-400" data-i18n="autoUpdateTitle">Auto-Update Timer</h2>
                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" data-i18n="autoUpdateDesc">Nodes are tested and updated automatically in the background.</p>
@@ -164,7 +164,6 @@ const getHtml = () => `<!DOCTYPE html>
                         </div>
                     </div>
                 </div>
-                <button onclick="updateAll()" id="btn-update" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-medium transition-all shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.23)] hover:-translate-y-0.5 whitespace-nowrap" data-i18n="updateAllBtn">Update & Ping All</button>
             </div>
         </div>
 
@@ -178,7 +177,13 @@ const getHtml = () => `<!DOCTYPE html>
         </div>
 
         <div class="ds-card space-y-4">
-            <h2 class="text-lg font-semibold mb-6" data-i18n="activeNodes">Active Nodes</h2>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <h2 class="text-lg font-semibold" data-i18n="activeNodes">Active Nodes</h2>
+                <button onclick="updateAll()" id="btn-update" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-medium transition-all shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.23)] hover:-translate-y-0.5 whitespace-nowrap flex items-center justify-center gap-2">
+                    <svg viewBox="64 64 896 896" width="15" height="15" fill="currentColor"><path d="M909.1 209.3l-56.4 44.1C775.8 155.1 656.2 92 521.9 92 290 92 102.3 279.5 102.3 511.5 102.3 743.7 290 931.2 521.9 931.2c222.1 0 404.2-171.7 418.5-391.2h-64c-14.2 184.2-168.1 327.2-354.5 327.2-196.2 0-355.6-159.4-355.6-355.6 0-196.2 159.4-355.6 355.6-355.6 110.1 0 208.9 50.1 274.6 128.5L471.2 463.3h384V79.3l-53.9 130z"/></svg>
+                    <span data-i18n="updateAllBtn">Update & Ping All</span>
+                </button>
+            </div>
             <div id="nodes-container" class="flex flex-col border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-[#1a1a1a]">
                 <p class="text-slate-400 p-4" data-i18n="loading">Loading...</p>
             </div>
