@@ -680,11 +680,18 @@ app.post('/api/admin/subs/:id/test', async (c) => {
   c.executionCtx.waitUntil((async () => {
     try {
       const { results: configs } = await c.env.DB.prepare("SELECT id, host, port FROM configs WHERE sub_id = ?").bind(subId).all<{ id: number, host: string, port: number }>();
-      const pings = await Promise.all(configs.map(async (cfg) => {
-        if (!cfg.host || !cfg.port) return { id: cfg.id, ping: -1 };
-        const ping = await tcpPing(cfg.host, cfg.port);
-        return { id: cfg.id, ping };
-      }));
+      const pings = [];
+      const batchSize = 50;
+      for (let i = 0; i < configs.length; i += batchSize) {
+        const batch = configs.slice(i, i + batchSize);
+        const batchResults = await Promise.all(batch.map(async (cfg) => {
+          if (!cfg.host || !cfg.port) return { id: cfg.id, ping: -1 };
+          const ping = await tcpPing(cfg.host, cfg.port);
+          return { id: cfg.id, ping };
+        }));
+        pings.push(...batchResults);
+      }
+      
       const stmts = [];
       for (const p of pings) {
         if (p.ping !== -1) {
@@ -713,15 +720,19 @@ async function runUpdateTask(env: Env) {
         const text = await resp.text();
         const uris = parseSubscription(text);
 
+        const insertStmts = [];
         for (const uri of uris) {
           const parsed = parseURI(uri);
           if (parsed && parsed.host) {
-            await env.DB.prepare(`
+            insertStmts.push(env.DB.prepare(`
               INSERT INTO configs (sub_id, name, raw_uri, protocol, host, port)
               VALUES (?, ?, ?, ?, ?, ?)
               ON CONFLICT(raw_uri) DO UPDATE SET name=excluded.name, host=excluded.host, port=excluded.port
-            `).bind(sub.id, parsed.name, parsed.raw_uri, parsed.protocol, parsed.host, parsed.port).run();
+            `).bind(sub.id, parsed.name, parsed.raw_uri, parsed.protocol, parsed.host, parsed.port));
           }
+        }
+        for (let i = 0; i < insertStmts.length; i += 100) {
+          await env.DB.batch(insertStmts.slice(i, i + 100));
         }
       } catch (e) {
         console.error(`Failed to fetch sub ${sub.url}`, e);
@@ -731,12 +742,18 @@ async function runUpdateTask(env: Env) {
     // Ping test
     const { results: configs } = await env.DB.prepare("SELECT id, host, port FROM configs").all<{ id: number, host: string, port: number }>();
     
-    // Concurrent pinging for blazing fast tests
-    const pings = await Promise.all(configs.map(async (cfg) => {
-      if (!cfg.host || !cfg.port) return { id: cfg.id, ping: -1 };
-      const ping = await tcpPing(cfg.host, cfg.port);
-      return { id: cfg.id, ping };
-    }));
+    // Batch pinging to prevent connection/memory limits
+    const pings = [];
+    const batchSize = 50;
+    for (let i = 0; i < configs.length; i += batchSize) {
+      const batch = configs.slice(i, i + batchSize);
+      const batchResults = await Promise.all(batch.map(async (cfg) => {
+        if (!cfg.host || !cfg.port) return { id: cfg.id, ping: -1 };
+        const ping = await tcpPing(cfg.host, cfg.port);
+        return { id: cfg.id, ping };
+      }));
+      pings.push(...batchResults);
+    }
 
     const stmts = [];
     for (const p of pings) {
