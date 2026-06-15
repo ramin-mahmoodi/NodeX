@@ -680,7 +680,6 @@ app.post('/api/admin/subs/:id/test', async (c) => {
   c.executionCtx.waitUntil((async () => {
     try {
       const { results: configs } = await c.env.DB.prepare("SELECT id, host, port FROM configs WHERE sub_id = ?").bind(subId).all<{ id: number, host: string, port: number }>();
-      const pings = [];
       const batchSize = 50;
       for (let i = 0; i < configs.length; i += batchSize) {
         const batch = configs.slice(i, i + batchSize);
@@ -689,19 +688,18 @@ app.post('/api/admin/subs/:id/test', async (c) => {
           const ping = await tcpPing(cfg.host, cfg.port);
           return { id: cfg.id, ping };
         }));
-        pings.push(...batchResults);
-      }
-      
-      const stmts = [];
-      for (const p of pings) {
-        if (p.ping !== -1) {
-          stmts.push(c.env.DB.prepare("UPDATE configs SET status='active', ping_ms=?, fail_count=0, last_tested_at=CURRENT_TIMESTAMP WHERE id=?").bind(p.ping, p.id));
-        } else {
-          stmts.push(c.env.DB.prepare("UPDATE configs SET status='error', fail_count=fail_count+1, last_tested_at=CURRENT_TIMESTAMP WHERE id=?").bind(p.id));
+        
+        const stmts = [];
+        for (const p of batchResults) {
+          if (p.ping !== -1) {
+            stmts.push(c.env.DB.prepare("UPDATE configs SET status='active', ping_ms=?, fail_count=0, last_tested_at=CURRENT_TIMESTAMP WHERE id=?").bind(p.ping, p.id));
+          } else {
+            stmts.push(c.env.DB.prepare("UPDATE configs SET status='error', fail_count=fail_count+1, last_tested_at=CURRENT_TIMESTAMP WHERE id=?").bind(p.id));
+          }
         }
-      }
-      for (let i = 0; i < stmts.length; i += 100) {
-        await c.env.DB.batch(stmts.slice(i, i + 100));
+        for (let j = 0; j < stmts.length; j += 100) {
+          await c.env.DB.batch(stmts.slice(j, j + 100));
+        }
       }
     } catch (e) {
       console.error(`Failed to test sub ${subId}`, e);
@@ -740,10 +738,9 @@ async function runUpdateTask(env: Env) {
     }
 
     // Ping test
-    const { results: configs } = await env.DB.prepare("SELECT id, host, port FROM configs").all<{ id: number, host: string, port: number }>();
+    const { results: configs } = await env.DB.prepare("SELECT id, host, port FROM configs ORDER BY ifnull(last_tested_at, '1970-01-01') ASC LIMIT 1500").all<{ id: number, host: string, port: number }>();
     
     // Batch pinging to prevent connection/memory limits
-    const pings = [];
     const batchSize = 50;
     for (let i = 0; i < configs.length; i += batchSize) {
       const batch = configs.slice(i, i + batchSize);
@@ -752,21 +749,19 @@ async function runUpdateTask(env: Env) {
         const ping = await tcpPing(cfg.host, cfg.port);
         return { id: cfg.id, ping };
       }));
-      pings.push(...batchResults);
-    }
-
-    const stmts = [];
-    for (const p of pings) {
-      if (p.ping !== -1) {
-        stmts.push(env.DB.prepare("UPDATE configs SET status='active', ping_ms=?, fail_count=0, last_tested_at=CURRENT_TIMESTAMP WHERE id=?").bind(p.ping, p.id));
-      } else {
-        stmts.push(env.DB.prepare("UPDATE configs SET status='error', fail_count=fail_count+1, last_tested_at=CURRENT_TIMESTAMP WHERE id=?").bind(p.id));
+      
+      const stmts = [];
+      for (const p of batchResults) {
+        if (p.ping !== -1) {
+          stmts.push(env.DB.prepare("UPDATE configs SET status='active', ping_ms=?, fail_count=0, last_tested_at=CURRENT_TIMESTAMP WHERE id=?").bind(p.ping, p.id));
+        } else {
+          stmts.push(env.DB.prepare("UPDATE configs SET status='error', fail_count=fail_count+1, last_tested_at=CURRENT_TIMESTAMP WHERE id=?").bind(p.id));
+        }
       }
-    }
 
-    // Execute in batches (D1 supports max 100 statements per batch)
-    for (let i = 0; i < stmts.length; i += 100) {
-      await env.DB.batch(stmts.slice(i, i + 100));
+      for (let j = 0; j < stmts.length; j += 100) {
+        await env.DB.batch(stmts.slice(j, j + 100));
+      }
     }
 
     // Prune
