@@ -28,7 +28,8 @@ const getHtml = () => `<!DOCTYPE html>
         }
     </script>
     <style>
-        body { font-family: "Inter", "Vazirmatn", sans-serif; transition: background-color 0.3s, color 0.3s; }
+        html[lang="fa"] body { font-family: "Vazirmatn", sans-serif; transition: background-color 0.3s, color 0.3s; }
+        html[lang="en"] body { font-family: "Inter", sans-serif; transition: background-color 0.3s, color 0.3s; }
         
         /* Light Theme (Fluid Art Inspired Background) */
         html.light body { 
@@ -88,7 +89,6 @@ const getHtml = () => `<!DOCTYPE html>
         html.light .text-slate-400 { color: #64748b !important; }
         html.light .text-slate-300 { color: #475569 !important; }
         html.light .text-slate-200 { color: #334155 !important; }
-        html.light .text-white { color: #0f172a !important; }
         html.light .bg-slate-800 { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
         html.light .bg-slate-700 { background-color: #e2e8f0 !important; color: #0f172a !important; }
         html.light .border-slate-700 { border-color: #cbd5e1 !important; }
@@ -96,18 +96,6 @@ const getHtml = () => `<!DOCTYPE html>
     </style>
 </head>
 <body class="min-h-screen p-4 sm:p-8 relative">
-    
-    <!-- Toolbar (Theme & Lang) -->
-    <div class="absolute top-8 end-8 flex items-center gap-2 z-40">
-        <button onclick="toggleTheme()" id="theme-btn" class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-700 hover:border-slate-500 text-slate-300 transition-colors shadow-sm bg-slate-800/50 hover:bg-slate-700/50" title="Theme">
-            <!-- Default Moon (Dark mode icon) -->
-            <svg id="icon-moon" fill-rule="evenodd" viewBox="64 64 896 896" width="1em" height="1em" fill="currentColor"><path d="M489.5 111.66c30.65-1.8 45.98 36.44 22.58 56.33A243.35 243.35 0 00426 354c0 134.76 109.24 244 244 244 72.58 0 139.9-31.83 186.01-86.08 19.87-23.38 58.07-8.1 56.34 22.53C900.4 745.82 725.15 912 512.5 912 291.31 912 112 732.69 112 511.5c0-211.39 164.29-386.02 374.2-399.65l.2-.01z"></path></svg>
-            <svg id="icon-sun" class="hidden" fill-rule="evenodd" viewBox="64 64 896 896" width="1em" height="1em" fill="currentColor"><path d="M548 818v126a16 16 0 01-16 16h-40a16 16 0 01-16-16V818c15.85 1.64 27.84 2.46 36 2.46 8.15 0 20.16-.82 36-2.46m205.25-115.66l89.1 89.1a16 16 0 010 22.62l-28.29 28.29a16 16 0 01-22.62 0l-89.1-89.1c12.37-10.04 21.43-17.95 27.2-23.71 5.76-5.77 13.67-14.84 23.71-27.2m-482.5 0c10.04 12.36 17.95 21.43 23.71 27.2 5.77 5.76 14.84 13.67 27.2 23.71l-89.1 89.1a16 16 0 01-22.62 0l-28.29-28.29a16 16 0 010-22.63zM512 278c129.24 0 234 104.77 234 234S641.24 746 512 746 278 641.24 278 512s104.77-234 234-234m0 72c-89.47 0-162 72.53-162 162s72.53 162 162 162 162-72.53 162-162-72.53-162-162-162M206 476c-1.64 15.85-2.46 27.84-2.46 36 0 8.15.82 20.16 2.46 36H80a16 16 0 01-16-16v-40a16 16 0 0116-16zm738 0a16 16 0 0116 16v40a16 16 0 01-16 16H818c1.64-15.85 2.46-27.84 2.46-36 0-8.15-.82-20.16-2.46-36zM814.06 180.65l28.29 28.29a16 16 0 010 22.63l-89.1 89.09c-10.04-12.37-17.95-21.43-23.71-27.2-5.77-5.76-14.84-13.67-27.2-23.71l89.1-89.1a16 16 0 0122.62 0m-581.5 0l89.1 89.1c-12.37 10.04-21.43 17.95-27.2 23.71-5.76 5.77-13.67 14.84-23.71 27.2l-89.1-89.1a16 16 0 010-22.62l28.29-28.29a16 16 0 0122.62 0M532 64a16 16 0 0116 16v126c-15.85-1.64-27.84-2.46-36-2.46-8.15 0-20.16.82-36 2.46V80a16 16 0 0116-16z"></path></svg>
-        </button>
-        <button onclick="toggleLang()" class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-700 hover:border-slate-500 text-slate-300 transition-colors shadow-sm bg-slate-800/50 hover:bg-slate-700/50" title="Language">
-            <svg viewBox="64 64 896 896" width="1em" height="1em" fill="currentColor"><path d="M140 188h584v164h76V144c0-17.7-14.3-32-32-32H96c-17.7 0-32 14.3-32 32v736c0 17.7 14.3 32 32 32h544v-76H140V188z"></path><path d="M414.3 256h-60.6c-3.4 0-6.4 2.2-7.6 5.4L219 629.4c-.3.8-.4 1.7-.4 2.6 0 4.4 3.6 8 8 8h55.1c3.4 0 6.4-2.2 7.6-5.4L322 540h196.2L422 261.4a8.42 8.42 0 00-7.7-5.4zm12.4 228h-85.5L384 360.2 426.7 484zM936 528H800v-93c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v93H592c-13.3 0-24 10.7-24 24v176c0 13.3 10.7 24 24 24h136v152c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8V752h136c13.3 0 24-10.7 24-24V552c0-13.3-10.7-24-24-24zM728 680h-88v-80h88v80zm160 0h-88v-80h88v80z"></path></svg>
-        </button>
-    </div>
 
     <!-- Toast Notification -->
     <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-4 py-2 rounded-full shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none flex items-center gap-2 z-50">
@@ -120,12 +108,26 @@ const getHtml = () => `<!DOCTYPE html>
         <img id="qr-image" src="" class="w-full h-full bg-white" alt="QR Code" />
     </div>
 
-    <div class="max-w-4xl mx-auto space-y-8 mt-12 sm:mt-0">
-        <div class="flex items-center space-x-4 mb-6 rtl:space-x-reverse">
-            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-                <span class="text-white font-black text-2xl tracking-tighter">NX</span>
+    <div class="max-w-4xl mx-auto space-y-8">
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center space-x-4 rtl:space-x-reverse">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <span class="font-black text-2xl tracking-tighter" style="color: white !important;">NX</span>
+                </div>
+                <h1 class="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 tracking-tight" data-i18n="title">NodeX</h1>
             </div>
-            <h1 class="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 tracking-tight" data-i18n="title">NodeX</h1>
+
+            <!-- Toolbar (Theme & Lang) -->
+            <div class="flex items-center gap-2">
+                <button onclick="toggleTheme()" id="theme-btn" class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-500 text-slate-600 dark:text-slate-300 transition-colors shadow-sm bg-white dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-700/50" title="Theme">
+                    <!-- Default Moon (Dark mode icon) -->
+                    <svg id="icon-moon" fill-rule="evenodd" viewBox="64 64 896 896" width="1em" height="1em" fill="currentColor"><path d="M489.5 111.66c30.65-1.8 45.98 36.44 22.58 56.33A243.35 243.35 0 00426 354c0 134.76 109.24 244 244 244 72.58 0 139.9-31.83 186.01-86.08 19.87-23.38 58.07-8.1 56.34 22.53C900.4 745.82 725.15 912 512.5 912 291.31 912 112 732.69 112 511.5c0-211.39 164.29-386.02 374.2-399.65l.2-.01z"></path></svg>
+                    <svg id="icon-sun" class="hidden" fill-rule="evenodd" viewBox="64 64 896 896" width="1em" height="1em" fill="currentColor"><path d="M548 818v126a16 16 0 01-16 16h-40a16 16 0 01-16-16V818c15.85 1.64 27.84 2.46 36 2.46 8.15 0 20.16-.82 36-2.46m205.25-115.66l89.1 89.1a16 16 0 010 22.62l-28.29 28.29a16 16 0 01-22.62 0l-89.1-89.1c12.37-10.04 21.43-17.95 27.2-23.71 5.76-5.77 13.67-14.84 23.71-27.2m-482.5 0c10.04 12.36 17.95 21.43 23.71 27.2 5.77 5.76 14.84 13.67 27.2 23.71l-89.1 89.1a16 16 0 01-22.62 0l-28.29-28.29a16 16 0 010-22.63zM512 278c129.24 0 234 104.77 234 234S641.24 746 512 746 278 641.24 278 512s104.77-234 234-234m0 72c-89.47 0-162 72.53-162 162s72.53 162 162 162 162-72.53 162-162-72.53-162-162-162M206 476c-1.64 15.85-2.46 27.84-2.46 36 0 8.15.82 20.16 2.46 36H80a16 16 0 01-16-16v-40a16 16 0 0116-16zm738 0a16 16 0 0116 16v40a16 16 0 01-16 16H818c1.64-15.85 2.46-27.84 2.46-36 0-8.15-.82-20.16-2.46-36zM814.06 180.65l28.29 28.29a16 16 0 010 22.63l-89.1 89.09c-10.04-12.37-17.95-21.43-23.71-27.2-5.77-5.76-14.84-13.67-27.2-23.71l89.1-89.1a16 16 0 0122.62 0m-581.5 0l89.1 89.1c-12.37 10.04-21.43 17.95-27.2 23.71-5.76 5.77-13.67 14.84-23.71 27.2l-89.1-89.1a16 16 0 010-22.62l28.29-28.29a16 16 0 0122.62 0M532 64a16 16 0 0116 16v126c-15.85-1.64-27.84-2.46-36-2.46-8.15 0-20.16.82-36 2.46V80a16 16 0 0116-16z"></path></svg>
+                </button>
+                <button onclick="toggleLang()" class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-500 text-slate-600 dark:text-slate-300 transition-colors shadow-sm bg-white dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-700/50" title="Language">
+                    <svg viewBox="64 64 896 896" width="1em" height="1em" fill="currentColor"><path d="M140 188h584v164h76V144c0-17.7-14.3-32-32-32H96c-17.7 0-32 14.3-32 32v736c0 17.7 14.3 32 32 32h544v-76H140V188z"></path><path d="M414.3 256h-60.6c-3.4 0-6.4 2.2-7.6 5.4L219 629.4c-.3.8-.4 1.7-.4 2.6 0 4.4 3.6 8 8 8h55.1c3.4 0 6.4-2.2 7.6-5.4L322 540h196.2L422 261.4a8.42 8.42 0 00-7.7-5.4zm12.4 228h-85.5L384 360.2 426.7 484zM936 528H800v-93c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v93H592c-13.3 0-24 10.7-24 24v176c0 13.3 10.7 24 24 24h136v152c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8V752h136c13.3 0 24-10.7 24-24V552c0-13.3-10.7-24-24-24zM728 680h-88v-80h88v80zm160 0h-88v-80h88v80z"></path></svg>
+                </button>
+            </div>
         </div>
         
         <div class="ds-card space-y-4">
