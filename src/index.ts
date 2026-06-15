@@ -42,7 +42,7 @@ const getHtml = () => `<!DOCTYPE html>
 
     <!-- QR Code Popover -->
     <div id="qr-popover" class="fixed bg-white p-3 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all duration-200 opacity-0 pointer-events-none z-50 transform scale-95" style="width: 200px; height: 200px;">
-        <img id="qr-image" src="" class="w-full h-full rounded-lg bg-white" alt="QR Code" />
+        <img id="qr-image" src="" class="w-full h-full bg-white" alt="QR Code" />
     </div>
 
     <div class="max-w-4xl mx-auto space-y-8">
@@ -85,28 +85,59 @@ const getHtml = () => `<!DOCTYPE html>
             <div id="nodes-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 Loading...
             </div>
+            <div id="pagination-controls" class="flex justify-center items-center gap-2 mt-6 hidden"></div>
         </div>
     </div>
     <script>
+        let allConfigs = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
         // Set dynamic URL
         document.getElementById('sub-link').value = window.location.origin + '/sub';
 
-        // Load configs
+        // Load configs and render
         function loadConfigs() {
             fetch('/api/configs')
-                .then(res => {
-                    if (!res.ok) throw new Error('API Error ' + res.status);
-                    return res.json();
-                })
+                .then(res => res.json())
                 .then(data => {
-                    if (data.error) {
-                        throw new Error(data.error);
-                    }
                     const container = document.getElementById('nodes-container');
-                    container.innerHTML = '';
-                    if(data.length === 0) container.innerHTML = '<p class="text-slate-400">No active nodes found. Paste a subscription link above and click Add & Test.</p>';
-                    data.forEach(n => {
-                        container.innerHTML += \`
+                    const pagContainer = document.getElementById('pagination-controls');
+                    if (data.error) {
+                        container.innerHTML = \`<p class="text-red-400">Error loading nodes: \${data.error}</p>\`;
+                        pagContainer.classList.add('hidden');
+                        return;
+                    }
+                    allConfigs = data;
+                    currentPage = 1;
+                    renderConfigs();
+                })
+                .catch(err => {
+                    document.getElementById('nodes-container').innerHTML = \`<p class="text-red-400">Error loading nodes: \${err.message}. Please check if the Database is correctly created and bound.</p>\`;
+                    document.getElementById('pagination-controls').classList.add('hidden');
+                });
+        }
+
+        function renderConfigs() {
+            const container = document.getElementById('nodes-container');
+            const pagContainer = document.getElementById('pagination-controls');
+            
+            if (!allConfigs || allConfigs.length === 0) {
+                container.innerHTML = '<p class="text-slate-400 col-span-full">No active nodes found. Paste a subscription link above and click Add & Test.</p>';
+                pagContainer.classList.add('hidden');
+                return;
+            }
+
+            const totalPages = Math.ceil(allConfigs.length / itemsPerPage);
+            if(currentPage < 1) currentPage = 1;
+            if(currentPage > totalPages) currentPage = totalPages;
+
+            const startIdx = (currentPage - 1) * itemsPerPage;
+            const currentItems = allConfigs.slice(startIdx, startIdx + itemsPerPage);
+
+            container.innerHTML = '';
+            currentItems.forEach(n => {
+                container.innerHTML += \`
                             <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 flex flex-col justify-between hover:border-slate-500 transition-colors">
                                 <div class="flex justify-between items-center mb-2">
                                     <span class="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded font-bold">\${n.protocol.toUpperCase()}</span>
@@ -126,11 +157,23 @@ const getHtml = () => `<!DOCTYPE html>
                                 </div>
                             </div>
                         \`;
-                    });
-                })
-                .catch(err => {
-                    document.getElementById('nodes-container').innerHTML = \`<p class="text-red-400">Error loading nodes: \${err.message}. Please check if the Database is correctly created and bound.</p>\`;
-                });
+            });
+
+            if (totalPages > 1) {
+                pagContainer.classList.remove('hidden');
+                pagContainer.innerHTML = \`
+                    <button onclick="changePage(-1)" class="px-4 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-300 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed" \${currentPage === 1 ? 'disabled' : ''}>Prev</button>
+                    <span class="text-slate-400 text-sm px-4 font-medium">Page \${currentPage} of \${totalPages}</span>
+                    <button onclick="changePage(1)" class="px-4 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-300 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed" \${currentPage === totalPages ? 'disabled' : ''}>Next</button>
+                \`;
+            } else {
+                pagContainer.classList.add('hidden');
+            }
+        }
+
+        function changePage(dir) {
+            currentPage += dir;
+            renderConfigs();
         }
 
         // Load Subscriptions
