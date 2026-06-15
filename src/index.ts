@@ -649,9 +649,71 @@ app.post('/api/admin/subs', async (c) => {
 
 // Trigger Update & Ping Task (Manual)
 app.post('/api/admin/update', async (c) => {
-  // Use waitUntil so the worker doesn't timeout while testing many nodes
-  c.executionCtx.waitUntil(runUpdateTask(c.env));
-  return c.json({ success: true, message: 'Update task triggered in background' });
+  try {
+    const { results: subs } = await c.env.DB.prepare("SELECT * FROM subscriptions").all<{ id: number, url: string }>();
+    let newOrResetCount = 0;
+
+    for (const sub of subs) {
+      const resp = await fetch(sub.url, { headers: { 'User-Agent': 'NodeX/1.0' } });
+      if (!resp.ok) {
+        throw new Error(`Failed to fetch ${sub.url}: ${resp.status} ${resp.statusText}`);
+      }
+      const text = await resp.text();
+      let uris = parseSubscription(text);
+      uris = uris.sort(() => Math.random() - 0.5);
+      uris = uris.slice(0, 3000);
+
+      const insertStmts = [];
+      for (const uri of uris) {
+        const parsed = parseURI(uri);
+        if (parsed && parsed.host) {
+          insertStmts.push(c.env.DB.prepare(`
+            INSERT INTO configs (sub_id, name, raw_uri, protocol, host, port)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(raw_uri) DO UPDATE SET 
+              name=excluded.name, 
+              host=excluded.host, 
+              port=excluded.port,
+              status = CASE WHEN configs.status = 'error' THEN 'pending' ELSE configs.status END,
+              fail_count = CASE WHEN configs.status = 'error' THEN 0 ELSE configs.fail_count END
+          `).bind(sub.id, parsed.name, parsed.raw_uri, parsed.protocol, parsed.host, parsed.port));
+        }
+      }
+      for (let i = 0; i < insertStmts.length; i += 100) {
+        await c.env.DB.batch(insertStmts.slice(i, i + 100));
+      }
+      newOrResetCount += insertStmts.length;
+    }
+
+    // Trigger the ping phase in background
+    c.executionCtx.waitUntil((async () => {
+      try {
+        const { results: configs } = await c.env.DB.prepare("SELECT id, host, port FROM configs ORDER BY ifnull(last_tested_at, '1970-01-01') ASC LIMIT 1500").all<{ id: number, host: string, port: number }>();
+        const batchSize = 50;
+        for (let i = 0; i < configs.length; i += batchSize) {
+          const batch = configs.slice(i, i + batchSize);
+          const batchResults = await Promise.all(batch.map(async (cfg) => {
+            if (!cfg.host || !cfg.port) return { id: cfg.id, ping: -1 };
+            const ping = await tcpPing(cfg.host, cfg.port);
+            return { id: cfg.id, ping };
+          }));
+          const stmts = [];
+          for (const p of batchResults) {
+            if (p.ping !== -1) {
+              stmts.push(c.env.DB.prepare("UPDATE configs SET status='active', ping_ms=?, fail_count=0, last_tested_at=CURRENT_TIMESTAMP WHERE id=?").bind(p.ping, p.id));
+            } else {
+              stmts.push(c.env.DB.prepare("UPDATE configs SET status='error', fail_count=fail_count+1, last_tested_at=CURRENT_TIMESTAMP WHERE id=?").bind(p.id));
+            }
+          }
+          for (let j = 0; j < stmts.length; j += 100) await c.env.DB.batch(stmts.slice(j, j + 100));
+        }
+      } catch(e) { console.error(e); }
+    })());
+
+    return c.json({ success: true, message: `Loaded ${newOrResetCount} configs. Testing in background...` });
+  } catch (e: any) {
+    return c.json({ error: e.message }, 500);
+  }
 });
 
 app.post('/api/admin/subs/:id/update', async (c) => {
@@ -735,8 +797,12 @@ async function runUpdateTask(env: Env) {
           if (parsed && parsed.host) {
             insertStmts.push(env.DB.prepare(`
               INSERT INTO configs (sub_id, name, raw_uri, protocol, host, port)
-              VALUES (?, ?, ?, ?, ?, ?)
-              ON CONFLICT(raw_uri) DO UPDATE SET name=excluded.name, host=excluded.host, port=excluded.port
+              ON CONFLICT(raw_uri) DO UPDATE SET 
+                name=excluded.name, 
+                host=excluded.host, 
+                port=excluded.port,
+                status = CASE WHEN configs.status = 'error' THEN 'pending' ELSE configs.status END,
+                fail_count = CASE WHEN configs.status = 'error' THEN 0 ELSE configs.fail_count END
             `).bind(sub.id, parsed.name, parsed.raw_uri, parsed.protocol, parsed.host, parsed.port));
           }
         }
