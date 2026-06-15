@@ -357,17 +357,23 @@ const getHtml = () => `<!DOCTYPE html>
                 method: 'POST',
                 body: JSON.stringify({ url: url }),
                 headers: { 'Content-Type': 'application/json' }
-            }).then(res => {
-                if (!res.ok) throw new Error('Failed to add sub');
+            }).then(async res => {
+                if (!res.ok) {
+                    const err = await res.json().catch(()=>({}));
+                    throw new Error(err.error || 'Failed to add sub');
+                }
                 loadSubs();
                 return fetch('/api/admin/update', { method: 'POST' });
-            }).then(res => {
-                if (!res.ok) throw new Error('Failed to start update');
+            }).then(async res => {
+                if (!res.ok) {
+                    const err = await res.json().catch(()=>({}));
+                    throw new Error(err.error || 'Failed to start update');
+                }
                 msg.innerHTML = \`<span class="text-emerald-500 font-medium">\${i18n[currentLang].successMsg}</span>\`;
                 document.getElementById('new-sub-url').value = '';
                 setTimeout(loadConfigs, 5000);
             }).catch(e => {
-                msg.innerHTML = \`<span class="text-red-500 font-medium">\${i18n[currentLang].errorLoading}</span>\`;
+                msg.innerHTML = \`<span class="text-red-500 font-medium">\${e.message || i18n[currentLang].errorLoading}</span>\`;
             });
         }
 
@@ -477,14 +483,18 @@ app.delete('/api/admin/subs/:id', async (c) => {
 
 // Admin Add Sub (Simplified)
 app.post('/api/admin/subs', async (c) => {
-  const body = await c.req.json();
-  if (!body.url) return c.json({ error: 'URL required' }, 400);
+  try {
+    const body = await c.req.json();
+    if (!body.url) return c.json({ error: 'URL required' }, 400);
 
-  await c.env.DB.prepare(
-    "INSERT INTO subscriptions (url, name) VALUES (?, ?)"
-  ).bind(body.url, body.name || 'Auto-Added').run();
+    await c.env.DB.prepare(
+      "INSERT INTO subscriptions (url, name) VALUES (?, ?)"
+    ).bind(body.url, body.name || 'Auto-Added').run();
 
-  return c.json({ success: true });
+    return c.json({ success: true });
+  } catch (e: any) {
+    return c.json({ error: e.message }, 500);
+  }
 });
 
 // Trigger Update & Ping Task (Manual)
