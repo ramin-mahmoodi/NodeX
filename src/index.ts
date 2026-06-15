@@ -27,6 +27,7 @@ const getHtml = () => `<!DOCTYPE html>
             }
         }
     </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         html[lang="fa"] body { font-family: "Vazirmatn", sans-serif; transition: background-color 0.3s, color 0.3s; }
         html[lang="en"] body { font-family: "Inter", sans-serif; transition: background-color 0.3s, color 0.3s; }
