@@ -658,6 +658,8 @@ app.post('/api/admin/subs/:id/update', async (c) => {
       const resp = await fetch(sub.url);
       const text = await resp.text();
       let uris = parseSubscription(text);
+      // Shuffle to get a random sample of all protocols instead of just the top ones
+      uris = uris.sort(() => Math.random() - 0.5);
       uris = uris.slice(0, 3000); // Limit to prevent D1 overload
       for (const uri of uris) {
         const parsed = parseURI(uri);
@@ -718,6 +720,8 @@ async function runUpdateTask(env: Env) {
         const resp = await fetch(sub.url);
         const text = await resp.text();
         let uris = parseSubscription(text);
+        // Shuffle to get a random sample of all protocols
+        uris = uris.sort(() => Math.random() - 0.5);
         uris = uris.slice(0, 3000); // Limit to prevent D1 overload
 
         const insertStmts = [];
