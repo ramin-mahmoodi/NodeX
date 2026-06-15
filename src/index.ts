@@ -357,14 +357,17 @@ const getHtml = () => `<!DOCTYPE html>
                 method: 'POST',
                 body: JSON.stringify({ url: url }),
                 headers: { 'Content-Type': 'application/json' }
-            }).then(() => {
+            }).then(res => {
+                if (!res.ok) throw new Error('Failed to add sub');
+                loadSubs();
                 return fetch('/api/admin/update', { method: 'POST' });
-            }).then(() => {
-                msg.innerHTML = \`<span class="text-emerald-400">\${i18n[currentLang].successMsg}</span>\`;
+            }).then(res => {
+                if (!res.ok) throw new Error('Failed to start update');
+                msg.innerHTML = \`<span class="text-emerald-500 font-medium">\${i18n[currentLang].successMsg}</span>\`;
                 document.getElementById('new-sub-url').value = '';
                 setTimeout(loadConfigs, 5000);
             }).catch(e => {
-                msg.innerHTML = \`<span class="text-red-400">\${i18n[currentLang].errorLoading}</span>\`;
+                msg.innerHTML = \`<span class="text-red-500 font-medium">\${i18n[currentLang].errorLoading}</span>\`;
             });
         }
 
