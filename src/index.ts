@@ -46,6 +46,15 @@ const getHtml = () => `<!DOCTYPE html>
         </div>
 
         <div class="glass p-6 rounded-xl space-y-4">
+            <h2 class="text-xl font-semibold text-blue-400">Admin Panel (Add Sub)</h2>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <input type="text" id="new-sub-url" placeholder="Paste your V2Ray Subscription URL here..." class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary">
+                <button onclick="addSub()" class="px-6 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg font-medium transition-colors whitespace-nowrap shadow-[0_0_15px_rgba(59,130,246,0.2)]">Add & Test</button>
+            </div>
+            <p id="admin-msg" class="text-sm text-slate-400 mt-2"></p>
+        </div>
+
+        <div class="glass p-6 rounded-xl space-y-4">
             <h2 class="text-xl font-semibold">Active Nodes</h2>
             <div id="nodes-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 Loading...
@@ -53,24 +62,56 @@ const getHtml = () => `<!DOCTYPE html>
         </div>
     </div>
     <script>
-        fetch('/api/configs')
-            .then(res => res.json())
-            .then(data => {
-                const container = document.getElementById('nodes-container');
-                container.innerHTML = '';
-                if(data.length === 0) container.innerHTML = '<p>No nodes found. Add subs via DB or Admin API.</p>';
-                data.forEach(n => {
-                    container.innerHTML += \`
-                        <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
-                            <div class="flex justify-between">
-                                <span class="font-bold text-blue-400">\${n.protocol.toUpperCase()}</span>
-                                <span class="\${n.ping_ms < 200 ? 'text-emerald-400' : 'text-yellow-400'}">\${n.ping_ms} ms</span>
+        // Set dynamic URL
+        document.getElementById('sub-link').value = window.location.origin + '/sub';
+
+        // Load configs
+        function loadConfigs() {
+            fetch('/api/configs')
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById('nodes-container');
+                    container.innerHTML = '';
+                    if(data.length === 0) container.innerHTML = '<p class="text-slate-400">No active nodes found. Paste a subscription link above and click Add & Test.</p>';
+                    data.forEach(n => {
+                        container.innerHTML += \`
+                            <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 flex flex-col justify-between hover:border-slate-500 transition-colors">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded font-bold">\${n.protocol.toUpperCase()}</span>
+                                    <span class="flex items-center gap-1 text-sm font-medium \${n.ping_ms < 200 ? 'text-emerald-400' : 'text-yellow-400'}">
+                                        <div class="w-2 h-2 rounded-full \${n.ping_ms < 200 ? 'bg-emerald-500' : 'bg-yellow-500'}"></div>
+                                        \${n.ping_ms} ms
+                                    </span>
+                                </div>
+                                <p class="text-slate-200 text-sm truncate" title="\${n.name}">\${n.name}</p>
                             </div>
-                            <p class="text-slate-300 truncate mt-2">\${n.name}</p>
-                        </div>
-                    \`;
+                        \`;
+                    });
                 });
+        }
+        loadConfigs();
+
+        // Add sub logic
+        function addSub() {
+            const url = document.getElementById('new-sub-url').value;
+            const msg = document.getElementById('admin-msg');
+            if(!url) return;
+            msg.innerHTML = '<span class="text-yellow-400">⏳ Adding sub and testing nodes in the background. Please wait, this might take a minute...</span>';
+            
+            fetch('/api/admin/subs', {
+                method: 'POST',
+                body: JSON.stringify({ url: url }),
+                headers: { 'Content-Type': 'application/json' }
+            }).then(() => {
+                return fetch('/api/admin/update', { method: 'POST' });
+            }).then(() => {
+                msg.innerHTML = '<span class="text-emerald-400">✅ Success! Nodes are being pinged in the background. Refresh the page in a minute to see them below.</span>';
+                document.getElementById('new-sub-url').value = '';
+                setTimeout(loadConfigs, 5000); // Try loading after 5s just in case some finished
+            }).catch(e => {
+                msg.innerHTML = '<span class="text-red-400">❌ Error adding subscription.</span>';
             });
+        }
     </script>
 </body>
 </html>`;
@@ -110,7 +151,8 @@ app.post('/api/admin/subs', async (c) => {
 
 // Trigger Update & Ping Task (Manual)
 app.post('/api/admin/update', async (c) => {
-  await runUpdateTask(c.env);
+  // Use waitUntil so the worker doesn't timeout while testing many nodes
+  c.executionCtx.waitUntil(runUpdateTask(c.env));
   return c.json({ success: true, message: 'Update task triggered in background' });
 });
 
