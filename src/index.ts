@@ -33,7 +33,26 @@ const getHtml = () => `<!DOCTYPE html>
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); }
     </style>
 </head>
-<body class="min-h-screen p-8">
+<body class="min-h-screen p-8 relative">
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-4 py-2 rounded-full shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none flex items-center gap-2 z-50">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        <span class="font-medium">Copied</span>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div id="qr-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl transform transition-transform scale-95 max-w-sm w-full mx-4" id="qr-modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-slate-800 font-bold text-lg">Subscription QR</h3>
+                <button onclick="closeQR()" class="text-slate-400 hover:text-slate-600 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-4 flex justify-center">
+                <img id="qr-image" src="" class="w-56 h-56" alt="QR Code" />
+            </div>
+        </div>
+    </div>
+
     <div class="max-w-4xl mx-auto space-y-8">
         <div class="flex items-center space-x-4 mb-6">
             <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
@@ -106,8 +125,12 @@ const getHtml = () => `<!DOCTYPE html>
                                 </div>
                                 <p class="text-slate-200 text-sm truncate mb-3" title="\${n.name}">\${n.name}</p>
                                 <div class="flex justify-end gap-2 mt-auto">
-                                    <button onclick="copyToClipboard('\${n.raw_uri}')" class="text-xs px-2 py-1 bg-slate-700 hover:bg-slate-600 rounded text-slate-300 transition-colors">Copy</button>
-                                    <button onclick="showQR('\${n.raw_uri}')" class="text-xs px-2 py-1 bg-slate-700 hover:bg-slate-600 rounded text-slate-300 transition-colors">QR</button>
+                                    <button onclick="copyToClipboard('\${n.raw_uri}')" class="p-1.5 bg-slate-700/50 hover:bg-slate-600 rounded-lg text-slate-300 transition-colors border border-slate-600" title="Copy">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                    </button>
+                                    <button onclick="showQR('\${n.raw_uri}')" class="p-1.5 bg-slate-700/50 hover:bg-slate-600 rounded-lg text-slate-300 transition-colors border border-slate-600" title="QR Code">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+                                    </button>
                                 </div>
                             </div>
                         \`;
@@ -188,13 +211,27 @@ const getHtml = () => `<!DOCTYPE html>
         }
 
         function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!'));
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('toast');
+                toast.classList.remove('opacity-0', 'pointer-events-none');
+                setTimeout(() => toast.classList.add('opacity-0', 'pointer-events-none'), 2000);
+            });
         }
 
         function showQR(text) {
-            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(text);
-            const w = window.open("", "_blank", "width=300,height=300");
-            w.document.write(\`<div style="display:flex;justify-content:center;align-items:center;height:100%;background:#0f172a;"><img src="\${qrUrl}" style="border-radius:10px;padding:10px;background:white;" /></div>\`);
+            const modal = document.getElementById('qr-modal');
+            const img = document.getElementById('qr-image');
+            const content = document.getElementById('qr-modal-content');
+            img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=' + encodeURIComponent(text);
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            content.classList.remove('scale-95');
+        }
+
+        function closeQR() {
+            const modal = document.getElementById('qr-modal');
+            const content = document.getElementById('qr-modal-content');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            content.classList.add('scale-95');
         }
     </script>
 </body>
@@ -294,15 +331,25 @@ async function runUpdateTask(env: Env) {
     // Ping test
     const { results: configs } = await env.DB.prepare("SELECT id, host, port FROM configs").all<{ id: number, host: string, port: number }>();
     
-    for (const cfg of configs) {
-      if (cfg.host && cfg.port) {
-        const ping = await tcpPing(cfg.host, cfg.port);
-        if (ping !== -1) {
-          await env.DB.prepare("UPDATE configs SET status='active', ping_ms=?, fail_count=0, last_tested_at=CURRENT_TIMESTAMP WHERE id=?").bind(ping, cfg.id).run();
-        } else {
-          await env.DB.prepare("UPDATE configs SET status='error', fail_count=fail_count+1, last_tested_at=CURRENT_TIMESTAMP WHERE id=?").bind(cfg.id).run();
-        }
+    // Concurrent pinging for blazing fast tests
+    const pings = await Promise.all(configs.map(async (cfg) => {
+      if (!cfg.host || !cfg.port) return { id: cfg.id, ping: -1 };
+      const ping = await tcpPing(cfg.host, cfg.port);
+      return { id: cfg.id, ping };
+    }));
+
+    const stmts = [];
+    for (const p of pings) {
+      if (p.ping !== -1) {
+        stmts.push(env.DB.prepare("UPDATE configs SET status='active', ping_ms=?, fail_count=0, last_tested_at=CURRENT_TIMESTAMP WHERE id=?").bind(p.ping, p.id));
+      } else {
+        stmts.push(env.DB.prepare("UPDATE configs SET status='error', fail_count=fail_count+1, last_tested_at=CURRENT_TIMESTAMP WHERE id=?").bind(p.id));
       }
+    }
+
+    // Execute in batches (D1 supports max 100 statements per batch)
+    for (let i = 0; i < stmts.length; i += 100) {
+      await env.DB.batch(stmts.slice(i, i + 100));
     }
 
     // Prune
