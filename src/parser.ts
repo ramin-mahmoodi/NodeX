@@ -51,32 +51,27 @@ export function parseURI(uri: string): ParsedConfig | null {
       };
     }
 
-    if (uri.startsWith('vless://') || uri.startsWith('trojan://')) {
-      const protocol = uri.startsWith('vless://') ? 'vless' : 'trojan';
+    // Generic fallback for any protocol that follows standard URI format (vless, trojan, hysteria2, tuic, ss, etc.)
+    if (uri.includes('://')) {
       const url = new URL(uri);
+      const protocol = url.protocol.replace(':', '');
       
-      // hostname:port
-      let host = url.hostname;
-      let port = parseInt(url.port);
+      if (url.hostname) {
+        let port = parseInt(url.port);
+        if (!port) {
+          port = (protocol === 'trojan' || protocol === 'vless' || protocol === 'hysteria2') ? 443 : 80;
+        }
 
-      if (!port) {
-        port = protocol === 'trojan' ? 443 : 80;
+        let name = url.hash ? decodeURIComponent(url.hash.replace('#', '')) : `Unknown ${protocol}`;
+
+        return {
+          protocol,
+          name: name.trim(),
+          host: url.hostname,
+          port: port,
+          raw_uri: uri
+        };
       }
-
-      // Sometimes host is obscured in SNI/host param, but for basic TCP ping we try the direct IP/host
-      const sni = url.searchParams.get('sni');
-      if (sni && !host.match(/^[0-9.]+$/)) {
-        // If host is an IP, we connect to IP. If not, maybe use SNI.
-        // Actually, for TCP ping we need the real routable address.
-      }
-
-      return {
-        protocol,
-        name: decodeURIComponent(url.hash.replace('#', '')) || `Unknown ${protocol}`,
-        host: host,
-        port: port,
-        raw_uri: uri
-      };
     }
 
     return null;

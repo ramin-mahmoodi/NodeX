@@ -657,7 +657,8 @@ app.post('/api/admin/subs/:id/update', async (c) => {
       if (!sub) return;
       const resp = await fetch(sub.url);
       const text = await resp.text();
-      const uris = parseSubscription(text);
+      let uris = parseSubscription(text);
+      uris = uris.slice(0, 3000); // Limit to prevent D1 overload
       for (const uri of uris) {
         const parsed = parseURI(uri);
         if (parsed && parsed.host) {
@@ -716,7 +717,8 @@ async function runUpdateTask(env: Env) {
       try {
         const resp = await fetch(sub.url);
         const text = await resp.text();
-        const uris = parseSubscription(text);
+        let uris = parseSubscription(text);
+        uris = uris.slice(0, 3000); // Limit to prevent D1 overload
 
         const insertStmts = [];
         for (const uri of uris) {
