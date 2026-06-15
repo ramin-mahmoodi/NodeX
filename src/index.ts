@@ -55,6 +55,13 @@ const getHtml = () => `<!DOCTYPE html>
         </div>
 
         <div class="glass p-6 rounded-xl space-y-4">
+            <h2 class="text-xl font-semibold text-purple-400">Manage Subscriptions</h2>
+            <div id="subs-container" class="overflow-x-auto">
+                <p class="text-slate-400">Loading subscriptions...</p>
+            </div>
+        </div>
+
+        <div class="glass p-6 rounded-xl space-y-4">
             <h2 class="text-xl font-semibold">Active Nodes</h2>
             <div id="nodes-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 Loading...
@@ -98,7 +105,39 @@ const getHtml = () => `<!DOCTYPE html>
                     document.getElementById('nodes-container').innerHTML = \`<p class="text-red-400">Error loading nodes: \${err.message}. Please check if the Database is correctly created and bound.</p>\`;
                 });
         }
+
+        // Load Subscriptions
+        function loadSubs() {
+            fetch('/api/admin/subs')
+                .then(res => res.ok ? res.json() : [])
+                .then(data => {
+                    const container = document.getElementById('subs-container');
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<p class="text-slate-400">No subscriptions added yet.</p>';
+                        return;
+                    }
+                    let html = '<table class="w-full text-left text-sm text-slate-300"><thead><tr class="border-b border-slate-700/50"><th class="pb-2">URL</th><th class="pb-2 text-right">Action</th></tr></thead><tbody>';
+                    data.forEach(s => {
+                        html += \`<tr class="border-b border-slate-700/50"><td class="py-3 truncate max-w-[200px] sm:max-w-xs" title="\${s.url}">\${s.url}</td><td class="py-3 text-right"><button onclick="deleteSub(\${s.id})" class="text-red-400 hover:text-red-300 px-3 py-1.5 bg-red-400/10 hover:bg-red-400/20 rounded transition-colors text-xs font-medium">Delete</button></td></tr>\`;
+                    });
+                    html += '</tbody></table>';
+                    container.innerHTML = html;
+                }).catch(e => {
+                    document.getElementById('subs-container').innerHTML = '<p class="text-red-400">Error loading subscriptions.</p>';
+                });
+        }
+        
+        function deleteSub(id) {
+            if(!confirm('Are you sure you want to delete this subscription? All its nodes will be removed.')) return;
+            fetch('/api/admin/subs/' + id, { method: 'DELETE' })
+                .then(() => {
+                    loadSubs();
+                    loadConfigs();
+                });
+        }
+
         loadConfigs();
+        loadSubs();
 
         // Add sub logic
         function addSub() {
@@ -147,6 +186,28 @@ app.get('/api/configs', async (c) => {
     return c.json(results);
   } catch (err: any) {
     return c.json({ error: err.message }, 500);
+  }
+});
+
+// Admin Get Subs
+app.get('/api/admin/subs', async (c) => {
+  try {
+    const { results } = await c.env.DB.prepare("SELECT * FROM subscriptions").all();
+    return c.json(results);
+  } catch (e) {
+    return c.json([], 500);
+  }
+});
+
+// Admin Delete Sub
+app.delete('/api/admin/subs/:id', async (c) => {
+  const id = c.req.param('id');
+  try {
+    await c.env.DB.prepare("DELETE FROM configs WHERE sub_id = ?").bind(id).run();
+    await c.env.DB.prepare("DELETE FROM subscriptions WHERE id = ?").bind(id).run();
+    return c.json({ success: true });
+  } catch (e) {
+    return c.json({ error: 'Failed to delete' }, 500);
   }
 });
 
