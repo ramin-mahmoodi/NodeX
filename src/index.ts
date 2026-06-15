@@ -252,7 +252,7 @@ const getHtml = () => `<!DOCTYPE html>
             const pagContainer = document.getElementById('pagination-controls');
             
             if (!allConfigs || allConfigs.length === 0) {
-                container.innerHTML = \`<p class="text-slate-500 dark:text-slate-400 text-sm p-4 text-center" data-i18n="noNodes">\${i18n[currentLang].noNodes}</p>\`;
+                container.innerHTML = \`<p class="text-slate-500 dark:text-slate-400 text-sm p-4 text-start" data-i18n="noNodes">\${i18n[currentLang].noNodes}</p>\`;
                 pagContainer.classList.add('hidden');
                 return;
             }
