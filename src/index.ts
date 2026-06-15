@@ -148,10 +148,20 @@ const getHtml = () => `<!DOCTYPE html>
             <p id="admin-msg" class="text-xs text-slate-400 mt-2"></p>
         </div>
 
+        <div class="ds-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-l-4 border-emerald-500 mb-6">
+            <div>
+                <h3 class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                    <svg viewBox="64 64 896 896" width="18" height="18" fill="currentColor" class="text-emerald-500"><path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"/><path d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"/></svg>
+                    <span data-i18n="autoUpdateTitle">Auto-Update Timer</span>
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" data-i18n="autoUpdateDesc">Nodes are tested and updated automatically every hour in the background.</p>
+            </div>
+            <button onclick="updateAll()" id="btn-update" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-medium transition-all shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.23)] hover:-translate-y-0.5 whitespace-nowrap" data-i18n="updateAllBtn">Update & Ping All</button>
+        </div>
+
         <div class="ds-card space-y-4">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-lg font-semibold text-purple-500 dark:text-purple-400" data-i18n="manageSub">Manage Subscriptions</h2>
-                <button onclick="updateAll()" id="btn-update" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-medium transition-all shadow-[0_4px_14px_0_rgba(147,51,234,0.39)] hover:shadow-[0_6px_20px_rgba(147,51,234,0.23)] hover:-translate-y-0.5" data-i18n="updateAllBtn">Update & Ping All</button>
             </div>
             <div id="subs-container" class="overflow-x-auto">
                 <p class="text-slate-400 text-sm" data-i18n="loading">Loading...</p>
@@ -169,10 +179,10 @@ const getHtml = () => `<!DOCTYPE html>
     <script>
         const i18n = {
             en: {
-                title: "NodeX", pubSub: "Public Subscription Link", pubSubDesc: "Use this link in your V2Ray client. It contains all active, TCP-pinged nodes.", addSubTitle: "Add Sub", addSubPlaceholder: "Paste your V2Ray Subscription URL here...", addBtn: "Add & Test", manageSub: "Manage Subscriptions", updateAllBtn: "Update & Ping All", updatingBtn: "Updating in background...", urlHead: "URL", actionHead: "Action", testBtn: "Test", updateBtn: "Update", deleteBtn: "Delete", noSubs: "No subscriptions added yet.", activeNodes: "Active Nodes", loading: "Loading...", noNodes: "No active nodes found. Paste a subscription link above and click Add & Test.", prev: "Prev", next: "Next", pageOf: "Page {1} of {2}", copied: "Copied", confirmDelete: "Are you sure you want to delete this subscription? All its nodes will be removed.", errorLoading: "Error loading nodes: ", testingMsg: "⏳ Adding sub and testing nodes in the background...", successMsg: "✅ Success! Nodes are being pinged in the background. Refresh in a minute.", actionSuccess: "✅ Task started in background."
+                title: "NodeX", pubSub: "Public Subscription Link", pubSubDesc: "Use this link in your V2Ray client. It contains all active, TCP-pinged nodes.", addSubTitle: "Add Sub", addSubPlaceholder: "Paste your V2Ray Subscription URL here...", addBtn: "Add & Test", manageSub: "Manage Subscriptions", updateAllBtn: "Update & Ping All", updatingBtn: "Updating in background...", urlHead: "URL", actionHead: "Action", testBtn: "Test", updateBtn: "Update", deleteBtn: "Delete", noSubs: "No subscriptions added yet.", activeNodes: "Active Nodes", loading: "Loading...", noNodes: "No active nodes found. Paste a subscription link above and click Add & Test.", prev: "Prev", next: "Next", pageOf: "Page {1} of {2}", copied: "Copied", confirmDelete: "Are you sure you want to delete this subscription? All its nodes will be removed.", errorLoading: "Error loading nodes: ", testingMsg: "⏳ Adding sub and testing nodes in the background...", successMsg: "✅ Success! Nodes are being pinged in the background. Refresh in a minute.", actionSuccess: "✅ Task started in background.", autoUpdateTitle: "Auto-Update Timer", autoUpdateDesc: "Nodes are tested and updated automatically every hour in the background."
             },
             fa: {
-                title: "نود ایکس", pubSub: "لینک اشتراک عمومی", pubSubDesc: "از این لینک در برنامه V2Ray خود استفاده کنید. این لینک شامل تمامی کانفیگ‌های فعال است.", addSubTitle: "افزودن اشتراک", addSubPlaceholder: "لینک اشتراک V2Ray خود را اینجا پیست کنید...", addBtn: "افزودن و تست", manageSub: "مدیریت اشتراک‌ها", updateAllBtn: "تست و آپدیت همه", updatingBtn: "در حال آپدیت...", urlHead: "لینک", actionHead: "عملیات", testBtn: "پینگ", updateBtn: "آپدیت", deleteBtn: "حذف", noSubs: "هنوز اشتراکی اضافه نشده است.", activeNodes: "کانفیگ‌های فعال", loading: "در حال بارگذاری...", noNodes: "هیچ کانفیگ فعالی یافت نشد. لینک اشتراک خود را وارد کنید و روی دکمه افزودن کلیک کنید.", prev: "قبلی", next: "بعدی", pageOf: "صفحه {1} از {2}", copied: "کپی شد", confirmDelete: "آیا از حذف این اشتراک اطمینان دارید؟ تمام کانفیگ‌های آن حذف خواهند شد.", errorLoading: "خطا در بارگذاری: ", testingMsg: "⏳ در حال افزودن و تست کانفیگ‌ها در پس‌زمینه...", successMsg: "✅ با موفقیت اضافه شد. کانفیگ‌ها در حال پینگ گرفتن هستند. لطفاً یک دقیقه دیگر رفرش کنید.", actionSuccess: "✅ عملیات در پس‌زمینه شروع شد."
+                title: "نود ایکس", pubSub: "لینک اشتراک عمومی", pubSubDesc: "از این لینک در برنامه V2Ray خود استفاده کنید. این لینک شامل تمامی کانفیگ‌های فعال است.", addSubTitle: "افزودن اشتراک", addSubPlaceholder: "لینک اشتراک V2Ray خود را اینجا پیست کنید...", addBtn: "افزودن و تست", manageSub: "مدیریت اشتراک‌ها", updateAllBtn: "تست و آپدیت همه", updatingBtn: "در حال آپدیت...", urlHead: "لینک", actionHead: "عملیات", testBtn: "پینگ", updateBtn: "آپدیت", deleteBtn: "حذف", noSubs: "هنوز اشتراکی اضافه نشده است.", activeNodes: "کانفیگ‌های فعال", loading: "در حال بارگذاری...", noNodes: "هیچ کانفیگ فعالی یافت نشد. لینک اشتراک خود را وارد کنید و روی دکمه افزودن کلیک کنید.", prev: "قبلی", next: "بعدی", pageOf: "صفحه {1} از {2}", copied: "کپی شد", confirmDelete: "آیا از حذف این اشتراک اطمینان دارید؟ تمام کانفیگ‌های آن حذف خواهند شد.", errorLoading: "خطا در بارگذاری: ", testingMsg: "⏳ در حال افزودن و تست کانفیگ‌ها در پس‌زمینه...", successMsg: "✅ با موفقیت اضافه شد. کانفیگ‌ها در حال پینگ گرفتن هستند. لطفاً یک دقیقه دیگر رفرش کنید.", actionSuccess: "✅ عملیات در پس‌زمینه شروع شد.", autoUpdateTitle: "تایمر آپدیت خودکار", autoUpdateDesc: "نودها به صورت خودکار هر یک ساعت در پس‌زمینه تست و آپدیت می‌شوند."
             }
         };
 
@@ -527,6 +537,9 @@ app.post('/api/admin/subs', async (c) => {
     await c.env.DB.prepare(
       "INSERT INTO subscriptions (url, name) VALUES (?, ?)"
     ).bind(body.url, body.name || 'Auto-Added').run();
+
+    // Trigger update and ping for everything to include the new sub automatically
+    c.executionCtx.waitUntil(runUpdateTask(c.env));
 
     return c.json({ success: true });
   } catch (e: any) {
