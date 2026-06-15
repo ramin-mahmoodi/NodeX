@@ -148,25 +148,39 @@ const getHtml = () => `<!DOCTYPE html>
             <p id="admin-msg" class="text-xs text-slate-400 mt-2"></p>
         </div>
 
-        <div class="ds-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-l-4 border-emerald-500 mb-6">
-            <div>
-                <h3 class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                    <svg viewBox="64 64 896 896" width="18" height="18" fill="currentColor" class="text-emerald-500"><path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"/><path d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"/></svg>
-                    <span data-i18n="autoUpdateTitle">Auto-Update Timer</span>
-                </h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" data-i18n="autoUpdateDesc">Nodes are tested and updated automatically in the background.</p>
-                <div class="mt-3 flex items-center gap-2">
-                    <span class="text-xs text-slate-500 font-medium" data-i18n="intervalLabel">Interval:</span>
-                    <select id="update-interval" onchange="changeInterval(this.value)" class="text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 outline-none text-slate-700 dark:text-slate-200 cursor-pointer">
-                        <option value="1" data-i18n="int1">1 Hour</option>
-                        <option value="3" data-i18n="int3">3 Hours</option>
-                        <option value="6" data-i18n="int6">6 Hours</option>
-                        <option value="12" data-i18n="int12">12 Hours</option>
-                        <option value="24" data-i18n="int24">24 Hours</option>
-                    </select>
+        <div class="ds-card mb-6 bg-gradient-to-br from-white to-slate-50/80 dark:from-[#1e1e24] dark:to-[#17171c] border border-slate-100 dark:border-slate-800/60 relative overflow-hidden">
+            <div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center flex-shrink-0 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 shadow-sm">
+                        <svg viewBox="64 64 896 896" width="22" height="22" fill="currentColor"><path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"/><path d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 dark:text-slate-100 text-[15px]" data-i18n="autoUpdateTitle">Auto-Update Timer</h3>
+                        <p class="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5" data-i18n="autoUpdateDesc">Nodes are tested and updated automatically in the background.</p>
+                        <div class="mt-3 flex items-center gap-3">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider" data-i18n="intervalLabel">Interval:</span>
+                            <div class="relative">
+                                <select id="update-interval" onchange="changeInterval(this.value)" class="appearance-none bg-white dark:bg-zinc-800/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all cursor-pointer shadow-sm">
+                                    <option value="1" data-i18n="int1">1 Hour</option>
+                                    <option value="3" data-i18n="int3">3 Hours</option>
+                                    <option value="6" data-i18n="int6">6 Hours</option>
+                                    <option value="12" data-i18n="int12">12 Hours</option>
+                                    <option value="24" data-i18n="int24">24 Hours</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-2.5 pointer-events-none text-slate-400">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                <button onclick="updateAll()" id="btn-update" class="w-full sm:w-auto px-5 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-xl text-[13px] font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 whitespace-nowrap flex items-center justify-center gap-2">
+                    <svg viewBox="64 64 896 896" width="15" height="15" fill="currentColor"><path d="M909.1 209.3l-56.4 44.1C775.8 155.1 656.2 92 521.9 92 290 92 102.3 279.5 102.3 511.5 102.3 743.7 290 931.2 521.9 931.2c222.1 0 404.2-171.7 418.5-391.2h-64c-14.2 184.2-168.1 327.2-354.5 327.2-196.2 0-355.6-159.4-355.6-355.6 0-196.2 159.4-355.6 355.6-355.6 110.1 0 208.9 50.1 274.6 128.5L471.2 463.3h384V79.3l-53.9 130z"/></svg>
+                    <span data-i18n="updateAllBtn">Update & Ping All</span>
+                </button>
             </div>
-            <button onclick="updateAll()" id="btn-update" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-medium transition-all shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.23)] hover:-translate-y-0.5 whitespace-nowrap" data-i18n="updateAllBtn">Update & Ping All</button>
         </div>
 
         <div class="ds-card space-y-4">
