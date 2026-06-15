@@ -487,6 +487,12 @@ app.post('/api/admin/subs', async (c) => {
     const body = await c.req.json();
     if (!body.url) return c.json({ error: 'URL required' }, 400);
 
+    try {
+      new URL(body.url);
+    } catch {
+      return c.json({ error: 'Invalid URL format' }, 400);
+    }
+
     await c.env.DB.prepare(
       "INSERT INTO subscriptions (url, name) VALUES (?, ?)"
     ).bind(body.url, body.name || 'Auto-Added').run();
