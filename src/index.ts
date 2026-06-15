@@ -105,8 +105,14 @@ const getHtml = () => `<!DOCTYPE html>
     </div>
 
     <!-- QR Code Popover -->
-    <div id="qr-popover" class="fixed bg-white p-3 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all duration-200 opacity-0 pointer-events-none z-50 transform scale-95" style="width: 200px; height: 200px;">
-        <img id="qr-image" src="" class="w-full h-full bg-white" alt="QR Code" />
+    <div id="qr-popover" class="fixed z-50 transition-all duration-200 opacity-0 pointer-events-none transform scale-95 origin-top" style="width: 240px;">
+        <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 bg-white shadow-[-2px_-2px_4px_rgba(0,0,0,0.05)] rounded-tl-sm z-0"></div>
+        <div class="relative bg-white p-3 rounded-xl shadow-[0_6px_24px_-4px_rgba(0,0,0,0.15)] flex flex-col items-center z-10 border border-slate-100">
+            <span class="bg-blue-50 text-blue-600 px-3 py-1 text-[11px] font-bold rounded mb-2 tracking-wide text-center truncate w-full" id="qr-tag-name">NodeX Sub</span>
+            <div class="bg-white w-[200px] h-[200px] flex items-center justify-center">
+                <img id="qr-image" src="" class="w-full h-full object-contain" alt="QR Code" />
+            </div>
+        </div>
     </div>
 
     <div class="max-w-4xl mx-auto space-y-8">
@@ -138,8 +144,8 @@ const getHtml = () => `<!DOCTYPE html>
             </div>
             <p class="text-slate-400 text-xs" data-i18n="pubSubDesc">Use this link in your V2Ray client. It contains all active, TCP-pinged nodes.</p>
             <div class="mt-4 flex flex-wrap items-center gap-3">
-                <button onclick="toggleQR(event, document.getElementById('sub-link').value)" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors">
-                    <svg viewBox="64 64 896 896" width="14" height="14" fill="currentColor"><path d="M112 112h272v272H112zm40 40v192h192V152zm248 0h272v272H400zm40 40v192h192V152zm-288 248h272v272H112zm40 40v192h192V480zM400 688h136v40H400zm0-208h136v40H400zm184 0h136v40H584zm0 208h136v40H584zM672 112h240v272H672zm40 40v192h160V152zm128 328h-88v-80h88zm-240 0h136v40H600zm240 208h-88v-80h88zm0-208h-88v-80h88z"/></svg>
+                <button onclick="toggleQR(event, document.getElementById('sub-link').value, 'NodeX Subscription')" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M3 12h13"/><path d="m16 8 4 4-4 4"/><path d="M16 12H8"/></svg>
                     <span data-i18n="qrCode">QR Code</span>
                 </button>
                 <a href="#" id="btn-v2rayng" class="px-4 py-2 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors">v2rayNG (Android)</a>
@@ -331,7 +337,7 @@ const getHtml = () => `<!DOCTYPE html>
                             <button aria-label="Copy" title="Copy" type="button" onclick="copyToClipboard('\${n.raw_uri}')" class="flex items-center justify-center w-7 h-7 rounded border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors">
                                 <span role="img" aria-label="copy" class="anticon anticon-copy"><svg viewBox="64 64 896 896" width="14" height="14" fill="currentColor"><path d="M832 64H296c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h496v688c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8V96c0-17.7-14.3-32-32-32zM704 192H192c-17.7 0-32 14.3-32 32v530.7c0 8.5 3.4 16.6 9.4 22.6l173.3 173.3c2.2 2.2 4.7 4 7.4 5.5v1.9h4.2c3.5 1.3 7.2 2 11 2H704c17.7 0 32-14.3 32-32V224c0-17.7-14.3-32-32-32zM350 856.2L263.9 770H350v86.2zM664 888H414V746c0-22.1-17.9-40-40-40H232V264h432v624z"></path></svg></span>
                             </button>
-                            <button aria-label="QR" title="QR" type="button" onclick="toggleQR(event, '\${n.raw_uri}')" class="flex items-center justify-center w-7 h-7 rounded border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors">
+                            <button aria-label="QR" title="QR" type="button" onclick="toggleQR(event, '\${n.raw_uri}', '\${n.name.replace(/'/g, "\\'")}')" class="flex items-center justify-center w-7 h-7 rounded border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors">
                                 <span role="img" aria-label="qrcode" class="anticon anticon-qrcode"><svg viewBox="64 64 896 896" width="14" height="14" fill="currentColor"><path d="M468 128H160c-17.7 0-32 14.3-32 32v308c0 4.4 3.6 8 8 8h332c4.4 0 8-3.6 8-8V136c0-4.4-3.6-8-8-8zm-56 284H192V192h220v220zm-138-74h56c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm194 210H136c-4.4 0-8 3.6-8 8v308c0 17.7 14.3 32 32 32h308c4.4 0 8-3.6 8-8V556c0-4.4-3.6-8-8-8zm-56 284H192V612h220v220zm-138-74h56c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm590-630H556c-4.4 0-8 3.6-8 8v332c0 4.4 3.6 8 8 8h332c4.4 0 8-3.6 8-8V160c0-17.7-14.3-32-32-32zm-32 284H612V192h220v220zm-138-74h56c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm194 210h-48c-4.4 0-8 3.6-8 8v134h-78V556c0-4.4-3.6-8-8-8H556c-4.4 0-8 3.6-8 8v332c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V644h78v102c0 4.4 3.6 8 8 8h190c4.4 0 8-3.6 8-8V556c0-4.4-3.6-8-8-8zM746 832h-48c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8zm142 0h-48c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8z"></path></svg></span>
                             </button>
                         </div>
@@ -495,24 +501,29 @@ const getHtml = () => `<!DOCTYPE html>
             });
         }
 
-        function toggleQR(event, text) {
+        function toggleQR(event, text, title = 'NodeX Sub') {
             event.stopPropagation();
             const popover = document.getElementById('qr-popover');
             const img = document.getElementById('qr-image');
+            const tagName = document.getElementById('qr-tag-name');
+            if (tagName) tagName.innerText = title;
+
             if (!popover.classList.contains('opacity-0') && img.src.includes(encodeURIComponent(text))) {
                 closeQR();
                 return;
             }
-            img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=0&data=' + encodeURIComponent(text);
+            img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=0&data=' + encodeURIComponent(text);
             const rect = event.currentTarget.getBoundingClientRect();
-            if (rect.top < 220) {
-                popover.style.top = (rect.bottom + 10) + 'px';
-                popover.classList.replace('origin-bottom-right', 'origin-top-right');
-            } else {
-                popover.style.top = (rect.top - 210) + 'px';
-                popover.classList.replace('origin-top-right', 'origin-bottom-right');
-            }
-            popover.style.left = (rect.left - 170) + 'px';
+            
+            const popoverWidth = 240;
+            let left = rect.left + (rect.width / 2) - (popoverWidth / 2);
+            let top = rect.bottom + 12;
+
+            if (left < 10) left = 10;
+            if (left + popoverWidth > window.innerWidth - 10) left = window.innerWidth - popoverWidth - 10;
+            
+            popover.style.left = left + 'px';
+            popover.style.top = top + 'px';
             popover.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
         }
 
