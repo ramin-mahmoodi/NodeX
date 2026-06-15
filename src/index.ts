@@ -106,11 +106,11 @@ const getHtml = () => `<!DOCTYPE html>
 
     <!-- QR Code Popover -->
     <div id="qr-popover" class="fixed z-50 transition-all duration-200 opacity-0 pointer-events-none transform scale-95 origin-top" style="width: 240px;">
-        <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 bg-white shadow-[-2px_-2px_4px_rgba(0,0,0,0.05)] rounded-tl-sm z-0"></div>
-        <div class="relative bg-white p-3 rounded-xl shadow-[0_6px_24px_-4px_rgba(0,0,0,0.15)] flex flex-col items-center z-10 border border-slate-100">
-            <span class="bg-blue-50 text-blue-600 px-3 py-1 text-[11px] font-bold rounded mb-2 tracking-wide text-center truncate w-full" id="qr-tag-name">NodeX Sub</span>
-            <div class="bg-white w-[200px] h-[200px] flex items-center justify-center">
-                <img id="qr-image" src="" class="w-full h-full object-contain" alt="QR Code" />
+        <div class="absolute -top-[5px] left-1/2 -translate-x-1/2 w-[11px] h-[11px] rotate-45 bg-white dark:bg-[#1a1a1a] border-l border-t border-slate-200 dark:border-slate-800 rounded-tl-[1px] z-20"></div>
+        <div class="relative bg-white dark:bg-[#1a1a1a] p-3 rounded-xl shadow-2xl flex flex-col items-center z-10 border border-slate-200 dark:border-slate-800">
+            <span class="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 px-3 py-1 text-[11px] font-bold rounded mb-3 tracking-wide text-center truncate w-full" id="qr-tag-name">NodeX Sub</span>
+            <div class="bg-white rounded-lg p-2 flex items-center justify-center">
+                <img id="qr-image" src="" class="w-[180px] h-[180px] object-contain" alt="QR Code" />
             </div>
         </div>
     </div>
