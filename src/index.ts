@@ -154,7 +154,17 @@ const getHtml = () => `<!DOCTYPE html>
                     <svg viewBox="64 64 896 896" width="18" height="18" fill="currentColor" class="text-emerald-500"><path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"/><path d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"/></svg>
                     <span data-i18n="autoUpdateTitle">Auto-Update Timer</span>
                 </h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" data-i18n="autoUpdateDesc">Nodes are tested and updated automatically every hour in the background.</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" data-i18n="autoUpdateDesc">Nodes are tested and updated automatically in the background.</p>
+                <div class="mt-3 flex items-center gap-2">
+                    <span class="text-xs text-slate-500 font-medium" data-i18n="intervalLabel">Interval:</span>
+                    <select id="update-interval" onchange="changeInterval(this.value)" class="text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 outline-none text-slate-700 dark:text-slate-200 cursor-pointer">
+                        <option value="1" data-i18n="int1">1 Hour</option>
+                        <option value="3" data-i18n="int3">3 Hours</option>
+                        <option value="6" data-i18n="int6">6 Hours</option>
+                        <option value="12" data-i18n="int12">12 Hours</option>
+                        <option value="24" data-i18n="int24">24 Hours</option>
+                    </select>
+                </div>
             </div>
             <button onclick="updateAll()" id="btn-update" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-medium transition-all shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.23)] hover:-translate-y-0.5 whitespace-nowrap" data-i18n="updateAllBtn">Update & Ping All</button>
         </div>
@@ -179,10 +189,10 @@ const getHtml = () => `<!DOCTYPE html>
     <script>
         const i18n = {
             en: {
-                title: "NodeX", pubSub: "Public Subscription Link", pubSubDesc: "Use this link in your V2Ray client. It contains all active, TCP-pinged nodes.", addSubTitle: "Add Sub", addSubPlaceholder: "Paste your V2Ray Subscription URL here...", addBtn: "Add & Test", manageSub: "Manage Subscriptions", updateAllBtn: "Update & Ping All", updatingBtn: "Updating in background...", urlHead: "URL", actionHead: "Action", testBtn: "Test", updateBtn: "Update", deleteBtn: "Delete", noSubs: "No subscriptions added yet.", activeNodes: "Active Nodes", loading: "Loading...", noNodes: "No active nodes found. Paste a subscription link above and click Add & Test.", prev: "Prev", next: "Next", pageOf: "Page {1} of {2}", copied: "Copied", confirmDelete: "Are you sure you want to delete this subscription? All its nodes will be removed.", errorLoading: "Error loading nodes: ", testingMsg: "⏳ Adding sub and testing nodes in the background...", successMsg: "✅ Success! Nodes are being pinged in the background. Refresh in a minute.", actionSuccess: "✅ Task started in background.", autoUpdateTitle: "Auto-Update Timer", autoUpdateDesc: "Nodes are tested and updated automatically every hour in the background."
+                title: "NodeX", pubSub: "Public Subscription Link", pubSubDesc: "Use this link in your V2Ray client. It contains all active, TCP-pinged nodes.", addSubTitle: "Add Sub", addSubPlaceholder: "Paste your V2Ray Subscription URL here...", addBtn: "Add & Test", manageSub: "Manage Subscriptions", updateAllBtn: "Update & Ping All", updatingBtn: "Updating in background...", urlHead: "URL", actionHead: "Action", testBtn: "Test", updateBtn: "Update", deleteBtn: "Delete", noSubs: "No subscriptions added yet.", activeNodes: "Active Nodes", loading: "Loading...", noNodes: "No active nodes found. Paste a subscription link above and click Add & Test.", prev: "Prev", next: "Next", pageOf: "Page {1} of {2}", copied: "Copied", confirmDelete: "Are you sure you want to delete this subscription? All its nodes will be removed.", errorLoading: "Error loading nodes: ", testingMsg: "⏳ Adding sub and testing nodes in the background...", successMsg: "✅ Success! Nodes are being pinged in the background. Refresh in a minute.", actionSuccess: "✅ Task started in background.", autoUpdateTitle: "Auto-Update Timer", autoUpdateDesc: "Nodes are tested and updated automatically in the background.", intervalLabel: "Interval:", int1: "1 Hour", int3: "3 Hours", int6: "6 Hours", int12: "12 Hours", int24: "24 Hours"
             },
             fa: {
-                title: "نود ایکس", pubSub: "لینک اشتراک عمومی", pubSubDesc: "از این لینک در برنامه V2Ray خود استفاده کنید. این لینک شامل تمامی کانفیگ‌های فعال است.", addSubTitle: "افزودن اشتراک", addSubPlaceholder: "لینک اشتراک V2Ray خود را اینجا پیست کنید...", addBtn: "افزودن و تست", manageSub: "مدیریت اشتراک‌ها", updateAllBtn: "تست و آپدیت همه", updatingBtn: "در حال آپدیت...", urlHead: "لینک", actionHead: "عملیات", testBtn: "پینگ", updateBtn: "آپدیت", deleteBtn: "حذف", noSubs: "هنوز اشتراکی اضافه نشده است.", activeNodes: "کانفیگ‌های فعال", loading: "در حال بارگذاری...", noNodes: "هیچ کانفیگ فعالی یافت نشد. لینک اشتراک خود را وارد کنید و روی دکمه افزودن کلیک کنید.", prev: "قبلی", next: "بعدی", pageOf: "صفحه {1} از {2}", copied: "کپی شد", confirmDelete: "آیا از حذف این اشتراک اطمینان دارید؟ تمام کانفیگ‌های آن حذف خواهند شد.", errorLoading: "خطا در بارگذاری: ", testingMsg: "⏳ در حال افزودن و تست کانفیگ‌ها در پس‌زمینه...", successMsg: "✅ با موفقیت اضافه شد. کانفیگ‌ها در حال پینگ گرفتن هستند. لطفاً یک دقیقه دیگر رفرش کنید.", actionSuccess: "✅ عملیات در پس‌زمینه شروع شد.", autoUpdateTitle: "تایمر آپدیت خودکار", autoUpdateDesc: "نودها به صورت خودکار هر یک ساعت در پس‌زمینه تست و آپدیت می‌شوند."
+                title: "نود ایکس", pubSub: "لینک اشتراک عمومی", pubSubDesc: "از این لینک در برنامه V2Ray خود استفاده کنید. این لینک شامل تمامی کانفیگ‌های فعال است.", addSubTitle: "افزودن اشتراک", addSubPlaceholder: "لینک اشتراک V2Ray خود را اینجا پیست کنید...", addBtn: "افزودن و تست", manageSub: "مدیریت اشتراک‌ها", updateAllBtn: "تست و آپدیت همه", updatingBtn: "در حال آپدیت...", urlHead: "لینک", actionHead: "عملیات", testBtn: "پینگ", updateBtn: "آپدیت", deleteBtn: "حذف", noSubs: "هنوز اشتراکی اضافه نشده است.", activeNodes: "کانفیگ‌های فعال", loading: "در حال بارگذاری...", noNodes: "هیچ کانفیگ فعالی یافت نشد. لینک اشتراک خود را وارد کنید و روی دکمه افزودن کلیک کنید.", prev: "قبلی", next: "بعدی", pageOf: "صفحه {1} از {2}", copied: "کپی شد", confirmDelete: "آیا از حذف این اشتراک اطمینان دارید؟ تمام کانفیگ‌های آن حذف خواهند شد.", errorLoading: "خطا در بارگذاری: ", testingMsg: "⏳ در حال افزودن و تست کانفیگ‌ها در پس‌زمینه...", successMsg: "✅ با موفقیت اضافه شد. کانفیگ‌ها در حال پینگ گرفتن هستند. لطفاً یک دقیقه دیگر رفرش کنید.", actionSuccess: "✅ عملیات در پس‌زمینه شروع شد.", autoUpdateTitle: "تایمر آپدیت خودکار", autoUpdateDesc: "نودها به صورت خودکار در پس‌زمینه تست و آپدیت می‌شوند.", intervalLabel: "بازه زمانی:", int1: "۱ ساعت", int3: "۳ ساعت", int6: "۶ ساعت", int12: "۱۲ ساعت", int24: "۲۴ ساعت"
             }
         };
 
@@ -342,7 +352,7 @@ const getHtml = () => `<!DOCTYPE html>
         function renderSubs() {
             const container = document.getElementById('subs-container');
             if (!allSubs || allSubs.length === 0) {
-                container.innerHTML = \`<p class="text-slate-400">\${i18n[currentLang].noSubs}</p>\`;
+                container.innerHTML = \`<p class="text-slate-500 dark:text-slate-400 text-sm p-4 text-start" data-i18n="noSubs">\${i18n[currentLang].noSubs}</p>\`;
                 return;
             }
             let html = \`<table class="w-full text-sm text-slate-600 dark:text-slate-300 text-\${currentLang === 'fa' ? 'right' : 'left'}" dir="ltr"><thead><tr class="ds-row"><th class="pb-3 text-left ds-table-head px-2">\${i18n[currentLang].urlHead}</th><th class="pb-3 text-right ds-table-head px-2">\${i18n[currentLang].actionHead}</th></tr></thead><tbody>\`;
@@ -384,6 +394,21 @@ const getHtml = () => `<!DOCTYPE html>
                     loadConfigs();
                 });
         }
+
+        function changeInterval(val) {
+            fetch('/api/admin/settings', {
+                method: 'POST',
+                body: JSON.stringify({ interval: parseInt(val) }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        fetch('/api/admin/settings').then(r => r.json()).then(data => {
+            if (data.interval) {
+                const sel = document.getElementById('update-interval');
+                if (sel) sel.value = data.interval;
+            }
+        });
 
         loadConfigs();
         loadSubs();
@@ -519,6 +544,29 @@ app.delete('/api/admin/subs/:id', async (c) => {
     return c.json({ success: true });
   } catch (e) {
     return c.json({ error: 'Failed to delete' }, 500);
+  }
+});
+
+// Admin Get Settings
+app.get('/api/admin/settings', async (c) => {
+  try {
+    await c.env.DB.prepare("CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)").run();
+    const res = await c.env.DB.prepare("SELECT value FROM settings WHERE key='update_interval'").first<{value: string}>();
+    return c.json({ interval: res ? parseInt(res.value) : 1 });
+  } catch(e) { 
+    return c.json({ interval: 1 }); 
+  }
+});
+
+// Admin Set Settings
+app.post('/api/admin/settings', async (c) => {
+  const { interval } = await c.req.json();
+  try {
+    await c.env.DB.prepare("CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)").run();
+    await c.env.DB.prepare("INSERT INTO settings (key, value) VALUES ('update_interval', ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind(interval.toString()).run();
+    return c.json({ success: true });
+  } catch(e) { 
+    return c.json({ success: false }); 
   }
 });
 
@@ -670,6 +718,23 @@ export default {
   
   // Cron Trigger handler
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
-    ctx.waitUntil(runUpdateTask(env));
+    try {
+      await env.DB.prepare("CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)").run();
+      const setting = await env.DB.prepare("SELECT value FROM settings WHERE key='update_interval'").first<{value: string}>();
+      const intervalHours = setting ? parseInt(setting.value) : 1;
+      
+      const lastRunSetting = await env.DB.prepare("SELECT value FROM settings WHERE key='last_run'").first<{value: string}>();
+      const lastRun = lastRunSetting ? parseInt(lastRunSetting.value) : 0;
+      const now = Date.now();
+      
+      // Allow running if time passed is close to the interval (minus 2 minutes for cron variability)
+      if (now - lastRun >= intervalHours * 60 * 60 * 1000 - 120000) {
+         await env.DB.prepare("INSERT INTO settings (key, value) VALUES ('last_run', ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind(now.toString()).run();
+         ctx.waitUntil(runUpdateTask(env));
+      }
+    } catch(e) {
+      // Fallback if settings table logic fails
+      ctx.waitUntil(runUpdateTask(env));
+    }
   }
 };
