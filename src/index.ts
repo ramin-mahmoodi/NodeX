@@ -105,7 +105,7 @@ const getHtml = () => `<!DOCTYPE html>
     </div>
 
     <!-- QR Code Popover -->
-    <div id="qr-popover" class="fixed z-50 transition-all duration-200 opacity-0 pointer-events-none transform scale-95 origin-top" style="width: 240px;">
+    <div id="qr-popover" class="absolute z-50 transition-all duration-200 opacity-0 pointer-events-none transform scale-95 origin-top" style="width: 240px;">
         <div id="qr-arrow" class="absolute -top-[5px] -translate-x-1/2 w-[11px] h-[11px] rotate-45 bg-white dark:bg-[#1a1a1a] border-l border-t border-slate-200 dark:border-slate-800 rounded-tl-[1px] z-20 transition-all duration-200"></div>
         <div class="relative bg-white dark:bg-[#1a1a1a] p-3 rounded-xl shadow-2xl flex flex-col items-center z-10 border border-slate-200 dark:border-slate-800">
             <span class="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 px-3 py-1 text-[11px] font-bold rounded mb-3 tracking-wide text-center truncate w-full" id="qr-tag-name">NodeX Sub</span>
@@ -516,18 +516,18 @@ const getHtml = () => `<!DOCTYPE html>
             const rect = event.currentTarget.getBoundingClientRect();
             
             const popoverWidth = 240;
-            let left = rect.left + (rect.width / 2) - (popoverWidth / 2);
-            let top = rect.bottom + 12;
+            let left = rect.left + window.scrollX + (rect.width / 2) - (popoverWidth / 2);
+            let top = rect.bottom + window.scrollY + 12;
 
             if (left < 10) left = 10;
-            if (left + popoverWidth > window.innerWidth - 10) left = window.innerWidth - popoverWidth - 10;
+            if (left + popoverWidth > window.innerWidth + window.scrollX - 10) left = window.innerWidth + window.scrollX - popoverWidth - 10;
             
             popover.style.left = left + 'px';
             popover.style.top = top + 'px';
 
             const arrow = document.getElementById('qr-arrow');
             if (arrow) {
-                const arrowLeft = (rect.left + rect.width / 2) - left;
+                const arrowLeft = (rect.left + window.scrollX + rect.width / 2) - left;
                 arrow.style.left = arrowLeft + 'px';
             }
 
