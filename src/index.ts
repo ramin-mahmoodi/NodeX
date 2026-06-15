@@ -40,17 +40,9 @@ const getHtml = () => `<!DOCTYPE html>
         <span class="font-medium">Copied</span>
     </div>
 
-    <!-- QR Code Modal -->
-    <div id="qr-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl transform transition-transform scale-95 max-w-sm w-full mx-4" id="qr-modal-content">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-slate-800 font-bold text-lg">Subscription QR</h3>
-                <button onclick="closeQR()" class="text-slate-400 hover:text-slate-600 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-            </div>
-            <div class="bg-slate-50 rounded-xl p-4 flex justify-center">
-                <img id="qr-image" src="" class="w-56 h-56" alt="QR Code" />
-            </div>
-        </div>
+    <!-- QR Code Popover -->
+    <div id="qr-popover" class="fixed bg-white p-3 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all duration-200 opacity-0 pointer-events-none z-50 transform scale-95" style="width: 200px; height: 200px;">
+        <img id="qr-image" src="" class="w-full h-full rounded-lg bg-white" alt="QR Code" />
     </div>
 
     <div class="max-w-4xl mx-auto space-y-8">
@@ -124,12 +116,12 @@ const getHtml = () => `<!DOCTYPE html>
                                     </span>
                                 </div>
                                 <p class="text-slate-200 text-sm truncate mb-3" title="\${n.name}">\${n.name}</p>
-                                <div class="flex justify-end gap-2 mt-auto">
-                                    <button onclick="copyToClipboard('\${n.raw_uri}')" class="p-1.5 bg-slate-700/50 hover:bg-slate-600 rounded-lg text-slate-300 transition-colors border border-slate-600" title="Copy">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                <div class="flex justify-end gap-2 mt-auto relative">
+                                    <button onclick="copyToClipboard('\${n.raw_uri}')" class="flex items-center justify-center w-7 h-7 bg-slate-700/50 hover:bg-slate-600 rounded text-slate-300 transition-colors border border-slate-600" title="Copy">
+                                        <svg viewBox="64 64 896 896" width="1em" height="1em" fill="currentColor"><path d="M832 64H296c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h496v688c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8V96c0-17.7-14.3-32-32-32zM704 192H192c-17.7 0-32 14.3-32 32v530.7c0 8.5 3.4 16.6 9.4 22.6l173.3 173.3c2.2 2.2 4.7 4 7.4 5.5v1.9h4.2c3.5 1.3 7.2 2 11 2H704c17.7 0 32-14.3 32-32V224c0-17.7-14.3-32-32-32zM350 856.2L263.9 770H350v86.2zM664 888H414V746c0-22.1-17.9-40-40-40H232V264h432v624z"></path></svg>
                                     </button>
-                                    <button onclick="showQR('\${n.raw_uri}')" class="p-1.5 bg-slate-700/50 hover:bg-slate-600 rounded-lg text-slate-300 transition-colors border border-slate-600" title="QR Code">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+                                    <button onclick="toggleQR(event, '\${n.raw_uri}')" class="flex items-center justify-center w-7 h-7 bg-slate-700/50 hover:bg-slate-600 rounded text-slate-300 transition-colors border border-slate-600" title="QR Code">
+                                        <svg viewBox="64 64 896 896" width="1em" height="1em" fill="currentColor"><path d="M468 128H160c-17.7 0-32 14.3-32 32v308c0 4.4 3.6 8 8 8h332c4.4 0 8-3.6 8-8V136c0-4.4-3.6-8-8-8zm-56 284H192V192h220v220zm-138-74h56c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm194 210H136c-4.4 0-8 3.6-8 8v308c0 17.7 14.3 32 32 32h308c4.4 0 8-3.6 8-8V556c0-4.4-3.6-8-8-8zm-56 284H192V612h220v220zm-138-74h56c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm590-630H556c-4.4 0-8 3.6-8 8v332c0 4.4 3.6 8 8 8h332c4.4 0 8-3.6 8-8V160c0-17.7-14.3-32-32-32zm-32 284H612V192h220v220zm-138-74h56c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm194 210h-48c-4.4 0-8 3.6-8 8v134h-78V556c0-4.4-3.6-8-8-8H556c-4.4 0-8 3.6-8 8v332c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V644h78v102c0 4.4 3.6 8 8 8h190c4.4 0 8-3.6 8-8V556c0-4.4-3.6-8-8-8zM746 832h-48c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8zm142 0h-48c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8z"></path></svg>
                                     </button>
                                 </div>
                             </div>
@@ -218,21 +210,45 @@ const getHtml = () => `<!DOCTYPE html>
             });
         }
 
-        function showQR(text) {
-            const modal = document.getElementById('qr-modal');
+        function toggleQR(event, text) {
+            event.stopPropagation();
+            const popover = document.getElementById('qr-popover');
             const img = document.getElementById('qr-image');
-            const content = document.getElementById('qr-modal-content');
-            img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=' + encodeURIComponent(text);
-            modal.classList.remove('opacity-0', 'pointer-events-none');
-            content.classList.remove('scale-95');
+            
+            // If clicking the same button to close
+            if (!popover.classList.contains('opacity-0') && img.src.includes(encodeURIComponent(text))) {
+                closeQR();
+                return;
+            }
+
+            img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=0&data=' + encodeURIComponent(text);
+            
+            const rect = event.currentTarget.getBoundingClientRect();
+            
+            // Calculate position
+            if (rect.top < 220) {
+                popover.style.top = (rect.bottom + 10) + 'px';
+                popover.classList.replace('origin-bottom-right', 'origin-top-right');
+            } else {
+                popover.style.top = (rect.top - 210) + 'px';
+                popover.classList.replace('origin-top-right', 'origin-bottom-right');
+            }
+            popover.style.left = (rect.left - 170) + 'px';
+
+            popover.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
         }
 
         function closeQR() {
-            const modal = document.getElementById('qr-modal');
-            const content = document.getElementById('qr-modal-content');
-            modal.classList.add('opacity-0', 'pointer-events-none');
-            content.classList.add('scale-95');
+            const popover = document.getElementById('qr-popover');
+            popover.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
         }
+
+        document.addEventListener('click', (e) => {
+            const popover = document.getElementById('qr-popover');
+            if (!popover.contains(e.target)) {
+                closeQR();
+            }
+        });
     </script>
 </body>
 </html>`;
