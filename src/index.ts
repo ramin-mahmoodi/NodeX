@@ -309,8 +309,13 @@ const getHtml = () => `<!DOCTYPE html>
 
             container.innerHTML = '';
             currentItems.forEach(n => {
-                const isGood = n.ping_ms < 200;
-                const statusColor = isGood ? 'text-emerald-500' : 'text-amber-500';
+                const isPending = n.status === 'pending';
+                const isGood = !isPending && n.ping_ms !== -1 && n.ping_ms < 500;
+                
+                let pingText = isPending ? 'Testing...' : n.ping_ms + ' ms';
+                if (!isPending && n.ping_ms === -1) pingText = 'Error';
+                
+                const dotColor = isPending ? 'bg-slate-400 animate-pulse' : (isGood ? 'bg-emerald-500' : 'bg-amber-500');
                 
                 let extraTags = '';
                 try {
@@ -329,7 +334,7 @@ const getHtml = () => `<!DOCTYPE html>
                             <span style="display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;">
                                 <span class="px-2 py-0.5 bg-blue-500/10 text-blue-500 dark:text-blue-400 text-[10px] rounded uppercase font-bold tracking-wider">\${n.protocol}</span>
                                 \${extraTags}
-                                <span class="px-2 py-0.5 bg-slate-500/10 text-slate-500 dark:text-slate-400 text-[10px] rounded uppercase font-bold tracking-wider flex items-center gap-1"><div class="w-1.5 h-1.5 rounded-full \${isGood ? 'bg-emerald-500' : 'bg-amber-500'} shadow-[0_0_8px_currentColor]"></div>\${n.ping_ms} ms</span>
+                                <span class="px-2 py-0.5 bg-slate-500/10 text-slate-500 dark:text-slate-400 text-[10px] rounded uppercase font-bold tracking-wider flex items-center gap-1"><div class="w-1.5 h-1.5 rounded-full \${dotColor} shadow-[0_0_8px_currentColor]"></div>\${pingText}</span>
                             </span>
                             <span class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate" title="\${n.name}">\${n.name}</span>
                         </div>
@@ -553,7 +558,7 @@ app.get('/', (c) => c.html(getHtml()));
 // Output Base64 Subscription
 app.get('/sub', async (c) => {
   const { results } = await c.env.DB.prepare(
-    "SELECT raw_uri FROM configs WHERE status = 'active' AND fail_count < 3 ORDER BY ping_ms ASC"
+    "SELECT raw_uri FROM configs WHERE status IN ('active', 'pending') AND fail_count < 3 ORDER BY CASE WHEN status='pending' THEN 99999 ELSE ping_ms END ASC"
   ).all<{ raw_uri: string }>();
 
   const uris = results.map(r => r.raw_uri).join('\n');
@@ -564,7 +569,7 @@ app.get('/sub', async (c) => {
 app.get('/api/configs', async (c) => {
   try {
     const { results } = await c.env.DB.prepare(
-      "SELECT name, protocol, ping_ms, raw_uri, last_tested_at FROM configs WHERE status = 'active' AND fail_count < 3 ORDER BY ping_ms ASC"
+      "SELECT name, protocol, ping_ms, raw_uri, last_tested_at, status FROM configs WHERE status IN ('active', 'pending') AND fail_count < 3 ORDER BY CASE WHEN status='pending' THEN 99999 ELSE ping_ms END ASC"
     ).all();
     return c.json(results);
   } catch (err: any) {
