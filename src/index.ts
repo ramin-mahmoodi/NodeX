@@ -160,8 +160,8 @@ const getHtml = () => `<!DOCTYPE html>
 
         <div class="ds-card space-y-4">
             <h2 class="text-lg font-semibold mb-6" data-i18n="activeNodes">Active Nodes</h2>
-            <div id="nodes-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <p class="text-slate-400" data-i18n="loading">Loading...</p>
+            <div id="nodes-container" class="flex flex-col border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-[#1a1a1a]">
+                <p class="text-slate-400 p-4" data-i18n="loading">Loading...</p>
             </div>
             <div id="pagination-controls" class="flex justify-center items-center gap-2 mt-6 hidden"></div>
         </div>
@@ -169,10 +169,10 @@ const getHtml = () => `<!DOCTYPE html>
     <script>
         const i18n = {
             en: {
-                title: "NodeX", pubSub: "Public Subscription Link", pubSubDesc: "Use this link in your V2Ray client. It contains all active, TCP-pinged nodes.", addSubTitle: "Add Sub", addSubPlaceholder: "Paste your V2Ray Subscription URL here...", addBtn: "Add & Test", manageSub: "Manage Subscriptions", updateAllBtn: "Update & Ping All", updatingBtn: "Updating in background...", urlHead: "URL", actionHead: "Action", deleteBtn: "Delete", noSubs: "No subscriptions added yet.", activeNodes: "Active Nodes", loading: "Loading...", noNodes: "No active nodes found. Paste a subscription link above and click Add & Test.", prev: "Prev", next: "Next", pageOf: "Page {1} of {2}", copied: "Copied", confirmDelete: "Are you sure you want to delete this subscription? All its nodes will be removed.", errorLoading: "Error loading nodes: ", testingMsg: "⏳ Adding sub and testing nodes in the background...", successMsg: "✅ Success! Nodes are being pinged in the background. Refresh in a minute."
+                title: "NodeX", pubSub: "Public Subscription Link", pubSubDesc: "Use this link in your V2Ray client. It contains all active, TCP-pinged nodes.", addSubTitle: "Add Sub", addSubPlaceholder: "Paste your V2Ray Subscription URL here...", addBtn: "Add & Test", manageSub: "Manage Subscriptions", updateAllBtn: "Update & Ping All", updatingBtn: "Updating in background...", urlHead: "URL", actionHead: "Action", testBtn: "Test", updateBtn: "Update", deleteBtn: "Delete", noSubs: "No subscriptions added yet.", activeNodes: "Active Nodes", loading: "Loading...", noNodes: "No active nodes found. Paste a subscription link above and click Add & Test.", prev: "Prev", next: "Next", pageOf: "Page {1} of {2}", copied: "Copied", confirmDelete: "Are you sure you want to delete this subscription? All its nodes will be removed.", errorLoading: "Error loading nodes: ", testingMsg: "⏳ Adding sub and testing nodes in the background...", successMsg: "✅ Success! Nodes are being pinged in the background. Refresh in a minute.", actionSuccess: "✅ Task started in background."
             },
             fa: {
-                title: "نود ایکس", pubSub: "لینک اشتراک عمومی", pubSubDesc: "از این لینک در برنامه V2Ray خود استفاده کنید. این لینک شامل تمامی کانفیگ‌های فعال است.", addSubTitle: "افزودن اشتراک", addSubPlaceholder: "لینک اشتراک V2Ray خود را اینجا پیست کنید...", addBtn: "افزودن و تست", manageSub: "مدیریت اشتراک‌ها", updateAllBtn: "تست و آپدیت همه", updatingBtn: "در حال آپدیت...", urlHead: "لینک", actionHead: "عملیات", deleteBtn: "حذف", noSubs: "هنوز اشتراکی اضافه نشده است.", activeNodes: "کانفیگ‌های فعال", loading: "در حال بارگذاری...", noNodes: "هیچ کانفیگ فعالی یافت نشد. لینک اشتراک خود را وارد کنید و روی دکمه افزودن کلیک کنید.", prev: "قبلی", next: "بعدی", pageOf: "صفحه {1} از {2}", copied: "کپی شد", confirmDelete: "آیا از حذف این اشتراک اطمینان دارید؟ تمام کانفیگ‌های آن حذف خواهند شد.", errorLoading: "خطا در بارگذاری: ", testingMsg: "⏳ در حال افزودن و تست کانفیگ‌ها در پس‌زمینه...", successMsg: "✅ با موفقیت اضافه شد. کانفیگ‌ها در حال پینگ گرفتن هستند. لطفاً یک دقیقه دیگر رفرش کنید."
+                title: "نود ایکس", pubSub: "لینک اشتراک عمومی", pubSubDesc: "از این لینک در برنامه V2Ray خود استفاده کنید. این لینک شامل تمامی کانفیگ‌های فعال است.", addSubTitle: "افزودن اشتراک", addSubPlaceholder: "لینک اشتراک V2Ray خود را اینجا پیست کنید...", addBtn: "افزودن و تست", manageSub: "مدیریت اشتراک‌ها", updateAllBtn: "تست و آپدیت همه", updatingBtn: "در حال آپدیت...", urlHead: "لینک", actionHead: "عملیات", testBtn: "پینگ", updateBtn: "آپدیت", deleteBtn: "حذف", noSubs: "هنوز اشتراکی اضافه نشده است.", activeNodes: "کانفیگ‌های فعال", loading: "در حال بارگذاری...", noNodes: "هیچ کانفیگ فعالی یافت نشد. لینک اشتراک خود را وارد کنید و روی دکمه افزودن کلیک کنید.", prev: "قبلی", next: "بعدی", pageOf: "صفحه {1} از {2}", copied: "کپی شد", confirmDelete: "آیا از حذف این اشتراک اطمینان دارید؟ تمام کانفیگ‌های آن حذف خواهند شد.", errorLoading: "خطا در بارگذاری: ", testingMsg: "⏳ در حال افزودن و تست کانفیگ‌ها در پس‌زمینه...", successMsg: "✅ با موفقیت اضافه شد. کانفیگ‌ها در حال پینگ گرفتن هستند. لطفاً یک دقیقه دیگر رفرش کنید.", actionSuccess: "✅ عملیات در پس‌زمینه شروع شد."
             }
         };
 
@@ -271,25 +271,22 @@ const getHtml = () => `<!DOCTYPE html>
                 const statusBg = isGood ? 'bg-emerald-500/10' : 'bg-amber-500/10';
                 
                 container.innerHTML += \`
-                    <div class="ds-row p-4 flex flex-col justify-between" style="direction: ltr;">
-                        <div class="flex justify-between items-center mb-3">
-                            <div class="flex items-center gap-3">
-                                <span class="px-2.5 py-1 \${statusBg} \${statusColor} text-[10px] rounded-full font-bold uppercase tracking-wider">\${n.protocol}</span>
-                                <span class="flex items-center gap-1.5 text-xs font-semibold \${statusColor}">
-                                    <div class="w-1.5 h-1.5 rounded-full \${isGood ? 'bg-emerald-500' : 'bg-amber-500'} shadow-[0_0_8px_currentColor]"></div>
-                                    \${n.ping_ms} ms
-                                </span>
-                            </div>
-                            <div class="flex justify-end gap-1 relative">
-                                <button onclick="copyToClipboard('\${n.raw_uri}')" class="flex items-center justify-center w-7 h-7 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors" title="Copy">
-                                    <svg viewBox="64 64 896 896" width="14" height="14" fill="currentColor"><path d="M832 64H296c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h496v688c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8V96c0-17.7-14.3-32-32-32zM704 192H192c-17.7 0-32 14.3-32 32v530.7c0 8.5 3.4 16.6 9.4 22.6l173.3 173.3c2.2 2.2 4.7 4 7.4 5.5v1.9h4.2c3.5 1.3 7.2 2 11 2H704c17.7 0 32-14.3 32-32V224c0-17.7-14.3-32-32-32zM350 856.2L263.9 770H350v86.2zM664 888H414V746c0-22.1-17.9-40-40-40H232V264h432v624z"></path></svg>
-                                </button>
-                                <button onclick="toggleQR(event, '\${n.raw_uri}')" class="flex items-center justify-center w-7 h-7 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors" title="QR Code">
-                                    <svg viewBox="64 64 896 896" width="14" height="14" fill="currentColor"><path d="M468 128H160c-17.7 0-32 14.3-32 32v308c0 4.4 3.6 8 8 8h332c4.4 0 8-3.6 8-8V136c0-4.4-3.6-8-8-8zm-56 284H192V192h220v220zm-138-74h56c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm194 210H136c-4.4 0-8 3.6-8 8v308c0 17.7 14.3 32 32 32h308c4.4 0 8-3.6 8-8V556c0-4.4-3.6-8-8-8zm-56 284H192V612h220v220zm-138-74h56c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm590-630H556c-4.4 0-8 3.6-8 8v332c0 4.4 3.6 8 8 8h332c4.4 0 8-3.6 8-8V160c0-17.7-14.3-32-32-32zm-32 284H612V192h220v220zm-138-74h56c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm194 210h-48c-4.4 0-8 3.6-8 8v134h-78V556c0-4.4-3.6-8-8-8H556c-4.4 0-8 3.6-8 8v332c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V644h78v102c0 4.4 3.6 8 8 8h190c4.4 0 8-3.6 8-8V556c0-4.4-3.6-8-8-8zM746 832h-48c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8zm142 0h-48c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8z"></path></svg>
-                                </button>
-                            </div>
+                    <div class="flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors" style="direction: ltr;">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <span style="display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                                <span class="px-2 py-0.5 bg-blue-500/10 text-blue-500 dark:text-blue-400 text-[10px] rounded uppercase font-bold tracking-wider">\${n.protocol}</span>
+                                <span class="px-2 py-0.5 \${statusBg} \${statusColor} text-[10px] rounded uppercase font-bold tracking-wider flex items-center gap-1"><div class="w-1.5 h-1.5 rounded-full \${isGood ? 'bg-emerald-500' : 'bg-amber-500'}"></div>\${n.ping_ms} ms</span>
+                            </span>
+                            <span class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate" title="\${n.name}">\${n.name}</span>
                         </div>
-                        <p class="text-slate-600 dark:text-slate-300 text-sm truncate font-medium" title="\${n.name}">\${n.name}</p>
+                        <div class="flex items-center gap-2 flex-shrink-0 ml-4">
+                            <button aria-label="Copy" title="Copy" type="button" onclick="copyToClipboard('\${n.raw_uri}')" class="flex items-center justify-center w-7 h-7 rounded border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors">
+                                <span role="img" aria-label="copy" class="anticon anticon-copy"><svg viewBox="64 64 896 896" width="14" height="14" fill="currentColor"><path d="M832 64H296c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h496v688c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8V96c0-17.7-14.3-32-32-32zM704 192H192c-17.7 0-32 14.3-32 32v530.7c0 8.5 3.4 16.6 9.4 22.6l173.3 173.3c2.2 2.2 4.7 4 7.4 5.5v1.9h4.2c3.5 1.3 7.2 2 11 2H704c17.7 0 32-14.3 32-32V224c0-17.7-14.3-32-32-32zM350 856.2L263.9 770H350v86.2zM664 888H414V746c0-22.1-17.9-40-40-40H232V264h432v624z"></path></svg></span>
+                            </button>
+                            <button aria-label="QR" title="QR" type="button" onclick="toggleQR(event, '\${n.raw_uri}')" class="flex items-center justify-center w-7 h-7 rounded border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors">
+                                <span role="img" aria-label="qrcode" class="anticon anticon-qrcode"><svg viewBox="64 64 896 896" width="14" height="14" fill="currentColor"><path d="M468 128H160c-17.7 0-32 14.3-32 32v308c0 4.4 3.6 8 8 8h332c4.4 0 8-3.6 8-8V136c0-4.4-3.6-8-8-8zm-56 284H192V192h220v220zm-138-74h56c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm194 210H136c-4.4 0-8 3.6-8 8v308c0 17.7 14.3 32 32 32h308c4.4 0 8-3.6 8-8V556c0-4.4-3.6-8-8-8zm-56 284H192V612h220v220zm-138-74h56c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm590-630H556c-4.4 0-8 3.6-8 8v332c0 4.4 3.6 8 8 8h332c4.4 0 8-3.6 8-8V160c0-17.7-14.3-32-32-32zm-32 284H612V192h220v220zm-138-74h56c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm194 210h-48c-4.4 0-8 3.6-8 8v134h-78V556c0-4.4-3.6-8-8-8H556c-4.4 0-8 3.6-8 8v332c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V644h78v102c0 4.4 3.6 8 8 8h190c4.4 0 8-3.6 8-8V556c0-4.4-3.6-8-8-8zM746 832h-48c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8zm142 0h-48c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8z"></path></svg></span>
+                            </button>
+                        </div>
                     </div>
                 \`;
             });
@@ -329,10 +326,33 @@ const getHtml = () => `<!DOCTYPE html>
             }
             let html = \`<table class="w-full text-sm text-slate-600 dark:text-slate-300 text-\${currentLang === 'fa' ? 'right' : 'left'}" dir="ltr"><thead><tr class="ds-row"><th class="pb-3 text-left ds-table-head px-2">\${i18n[currentLang].urlHead}</th><th class="pb-3 text-right ds-table-head px-2">\${i18n[currentLang].actionHead}</th></tr></thead><tbody>\`;
             allSubs.forEach(s => {
-                html += \`<tr class="ds-row"><td class="py-4 px-2 truncate max-w-[200px] sm:max-w-xs text-left font-medium" style="direction: ltr;" title="\${s.url}">\${s.url}</td><td class="py-4 px-2 text-right"><button onclick="deleteSub(\${s.id})" class="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 px-3 py-1.5 bg-red-50 dark:bg-red-400/10 hover:bg-red-100 dark:hover:bg-red-400/20 rounded-lg transition-colors text-xs font-semibold">\${i18n[currentLang].deleteBtn}</button></td></tr>\`;
+                html += \`<tr class="ds-row hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors">
+                    <td class="py-4 px-2 truncate max-w-[200px] sm:max-w-[150px] text-left font-medium text-slate-700 dark:text-slate-200" style="direction: ltr;" title="\${s.url}">\${s.url}</td>
+                    <td class="py-4 px-2">
+                        <div class="flex items-center justify-end gap-2">
+                            <button onclick="updateSub(\${s.id})" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded-lg transition-colors text-xs font-semibold">\${i18n[currentLang].updateBtn}</button>
+                            <button onclick="testSub(\${s.id})" class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 px-3 py-1.5 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded-lg transition-colors text-xs font-semibold">\${i18n[currentLang].testBtn}</button>
+                            <button onclick="deleteSub(\${s.id})" class="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 px-3 py-1.5 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition-colors text-xs font-semibold">\${i18n[currentLang].deleteBtn}</button>
+                        </div>
+                    </td>
+                </tr>\`;
             });
             html += '</tbody></table>';
             container.innerHTML = html;
+        }
+        
+        function updateSub(id) {
+            const msg = document.getElementById('admin-msg');
+            msg.innerHTML = \`<span class="text-emerald-500 font-medium">\${i18n[currentLang].actionSuccess}</span>\`;
+            fetch('/api/admin/subs/' + id + '/update', { method: 'POST' })
+                .then(() => setTimeout(loadConfigs, 2000));
+        }
+
+        function testSub(id) {
+            const msg = document.getElementById('admin-msg');
+            msg.innerHTML = \`<span class="text-blue-500 font-medium">\${i18n[currentLang].actionSuccess}</span>\`;
+            fetch('/api/admin/subs/' + id + '/test', { method: 'POST' })
+                .then(() => setTimeout(loadConfigs, 5000));
         }
         
         function deleteSub(id) {
@@ -508,6 +528,60 @@ app.post('/api/admin/update', async (c) => {
   // Use waitUntil so the worker doesn't timeout while testing many nodes
   c.executionCtx.waitUntil(runUpdateTask(c.env));
   return c.json({ success: true, message: 'Update task triggered in background' });
+});
+
+app.post('/api/admin/subs/:id/update', async (c) => {
+  const subId = c.req.param('id');
+  c.executionCtx.waitUntil((async () => {
+    try {
+      const sub = await c.env.DB.prepare("SELECT * FROM subscriptions WHERE id = ?").bind(subId).first<{ id: number, url: string }>();
+      if (!sub) return;
+      const resp = await fetch(sub.url);
+      const text = await resp.text();
+      const uris = parseSubscription(text);
+      for (const uri of uris) {
+        const parsed = parseURI(uri);
+        if (parsed && parsed.host) {
+          await c.env.DB.prepare(`
+            INSERT INTO configs (sub_id, name, raw_uri, protocol, host, port)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(raw_uri) DO UPDATE SET name=excluded.name, host=excluded.host, port=excluded.port
+          `).bind(sub.id, parsed.name, parsed.raw_uri, parsed.protocol, parsed.host, parsed.port).run();
+        }
+      }
+    } catch (e) {
+      console.error(`Failed to update sub ${subId}`, e);
+    }
+  })());
+  return c.json({ success: true });
+});
+
+app.post('/api/admin/subs/:id/test', async (c) => {
+  const subId = c.req.param('id');
+  c.executionCtx.waitUntil((async () => {
+    try {
+      const { results: configs } = await c.env.DB.prepare("SELECT id, host, port FROM configs WHERE sub_id = ?").bind(subId).all<{ id: number, host: string, port: number }>();
+      const pings = await Promise.all(configs.map(async (cfg) => {
+        if (!cfg.host || !cfg.port) return { id: cfg.id, ping: -1 };
+        const ping = await tcpPing(cfg.host, cfg.port);
+        return { id: cfg.id, ping };
+      }));
+      const stmts = [];
+      for (const p of pings) {
+        if (p.ping !== -1) {
+          stmts.push(c.env.DB.prepare("UPDATE configs SET status='active', ping_ms=?, fail_count=0, last_tested_at=CURRENT_TIMESTAMP WHERE id=?").bind(p.ping, p.id));
+        } else {
+          stmts.push(c.env.DB.prepare("UPDATE configs SET status='error', fail_count=fail_count+1, last_tested_at=CURRENT_TIMESTAMP WHERE id=?").bind(p.id));
+        }
+      }
+      for (let i = 0; i < stmts.length; i += 100) {
+        await c.env.DB.batch(stmts.slice(i, i + 100));
+      }
+    } catch (e) {
+      console.error(`Failed to test sub ${subId}`, e);
+    }
+  })());
+  return c.json({ success: true });
 });
 
 async function runUpdateTask(env: Env) {
