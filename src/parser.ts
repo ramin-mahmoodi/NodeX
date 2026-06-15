@@ -6,16 +6,27 @@ export interface ParsedConfig {
   raw_uri: string;
 }
 
+export function decodeBase64Utf8(str: string): string {
+  try {
+    let b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+    while (b64.length % 4) { b64 += '='; }
+    const binary = atob(b64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return new TextDecoder('utf-8').decode(bytes);
+  } catch (e) {
+    return str;
+  }
+}
+
 export function parseSubscription(base64Data: string): string[] {
   try {
     let decoded = base64Data;
-    try {
-      // Fix url-safe chars and padding
-      let b64 = base64Data.replace(/-/g, '+').replace(/_/g, '/');
-      while (b64.length % 4) { b64 += '='; }
-      decoded = atob(b64);
-    } catch {
-      // fallback to raw text if it's not base64
+    // Check if it looks like base64
+    if (!base64Data.includes('://')) {
+      decoded = decodeBase64Utf8(base64Data);
     }
 
     return decoded.split('\n').map(line => line.trim()).filter(line => line.length > 0);
@@ -29,7 +40,7 @@ export function parseURI(uri: string): ParsedConfig | null {
   try {
     if (uri.startsWith('vmess://')) {
       const base64Str = uri.replace('vmess://', '');
-      const decoded = atob(base64Str);
+      const decoded = decodeBase64Utf8(base64Str);
       const config = JSON.parse(decoded);
       return {
         protocol: 'vmess',

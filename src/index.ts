@@ -35,7 +35,12 @@ const getHtml = () => `<!DOCTYPE html>
 </head>
 <body class="min-h-screen p-8">
     <div class="max-w-4xl mx-auto space-y-8">
-        <h1 class="text-3xl font-bold text-white">V2Ray Sub Manager (CF Edition)</h1>
+        <div class="flex items-center space-x-4 mb-6">
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <span class="text-white font-black text-2xl tracking-tighter">NX</span>
+            </div>
+            <h1 class="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 tracking-tight">NodeX</h1>
+        </div>
         
         <div class="glass p-6 rounded-xl space-y-4">
             <h2 class="text-xl font-semibold">Public Subscription Link</h2>
@@ -46,7 +51,7 @@ const getHtml = () => `<!DOCTYPE html>
         </div>
 
         <div class="glass p-6 rounded-xl space-y-4">
-            <h2 class="text-xl font-semibold text-blue-400">Admin Panel (Add Sub)</h2>
+            <h2 class="text-xl font-semibold text-blue-400">Add Sub</h2>
             <div class="flex flex-col sm:flex-row gap-4">
                 <input type="text" id="new-sub-url" placeholder="Paste your V2Ray Subscription URL here..." class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary">
                 <button onclick="addSub()" class="px-6 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg font-medium transition-colors whitespace-nowrap shadow-[0_0_15px_rgba(59,130,246,0.2)]">Add & Test</button>
@@ -55,7 +60,10 @@ const getHtml = () => `<!DOCTYPE html>
         </div>
 
         <div class="glass p-6 rounded-xl space-y-4">
-            <h2 class="text-xl font-semibold text-purple-400">Manage Subscriptions</h2>
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-semibold text-purple-400">Manage Subscriptions</h2>
+                <button onclick="updateAll()" id="btn-update" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-medium transition-colors shadow-[0_0_15px_rgba(147,51,234,0.3)]">Update & Ping All</button>
+            </div>
             <div id="subs-container" class="overflow-x-auto">
                 <p class="text-slate-400">Loading subscriptions...</p>
             </div>
@@ -96,7 +104,11 @@ const getHtml = () => `<!DOCTYPE html>
                                         \${n.ping_ms} ms
                                     </span>
                                 </div>
-                                <p class="text-slate-200 text-sm truncate" title="\${n.name}">\${n.name}</p>
+                                <p class="text-slate-200 text-sm truncate mb-3" title="\${n.name}">\${n.name}</p>
+                                <div class="flex justify-end gap-2 mt-auto">
+                                    <button onclick="copyToClipboard('\${n.raw_uri}')" class="text-xs px-2 py-1 bg-slate-700 hover:bg-slate-600 rounded text-slate-300 transition-colors">Copy</button>
+                                    <button onclick="showQR('\${n.raw_uri}')" class="text-xs px-2 py-1 bg-slate-700 hover:bg-slate-600 rounded text-slate-300 transition-colors">QR</button>
+                                </div>
                             </div>
                         \`;
                     });
@@ -160,6 +172,30 @@ const getHtml = () => `<!DOCTYPE html>
                 msg.innerHTML = '<span class="text-red-400">❌ Error adding subscription.</span>';
             });
         }
+        function updateAll() {
+            const btn = document.getElementById('btn-update');
+            btn.innerText = 'Updating in background...';
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
+            fetch('/api/admin/update', { method: 'POST' }).then(() => {
+                setTimeout(() => {
+                    btn.innerText = 'Update & Ping All';
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50');
+                    loadConfigs();
+                }, 10000);
+            });
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!'));
+        }
+
+        function showQR(text) {
+            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(text);
+            const w = window.open("", "_blank", "width=300,height=300");
+            w.document.write(\`<div style="display:flex;justify-content:center;align-items:center;height:100%;background:#0f172a;"><img src="\${qrUrl}" style="border-radius:10px;padding:10px;background:white;" /></div>\`);
+        }
     </script>
 </body>
 </html>`;
@@ -181,7 +217,7 @@ app.get('/sub', async (c) => {
 app.get('/api/configs', async (c) => {
   try {
     const { results } = await c.env.DB.prepare(
-      "SELECT name, protocol, ping_ms, last_tested_at FROM configs WHERE status = 'active' AND fail_count < 3 ORDER BY ping_ms ASC"
+      "SELECT name, protocol, ping_ms, raw_uri, last_tested_at FROM configs WHERE status = 'active' AND fail_count < 3 ORDER BY ping_ms ASC"
     ).all();
     return c.json(results);
   } catch (err: any) {
