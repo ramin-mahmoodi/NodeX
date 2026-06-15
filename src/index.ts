@@ -161,17 +161,12 @@ const getHtml = () => `<!DOCTYPE html>
                         <p class="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5" data-i18n="autoUpdateDesc">Nodes are tested and updated automatically in the background.</p>
                         <div class="mt-3 flex items-center gap-3">
                             <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider" data-i18n="intervalLabel">Interval:</span>
-                            <div class="relative">
-                                <select id="update-interval" onchange="changeInterval(this.value)" class="appearance-none bg-white dark:bg-zinc-800/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all cursor-pointer shadow-sm">
-                                    <option value="1" data-i18n="int1">1 Hour</option>
-                                    <option value="3" data-i18n="int3">3 Hours</option>
-                                    <option value="6" data-i18n="int6">6 Hours</option>
-                                    <option value="12" data-i18n="int12">12 Hours</option>
-                                    <option value="24" data-i18n="int24">24 Hours</option>
-                                </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center px-2.5 pointer-events-none text-slate-400">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </div>
+                            <div class="flex items-center bg-slate-100/80 dark:bg-zinc-800 p-1 rounded-lg border border-slate-200/50 dark:border-slate-700/50 shadow-inner">
+                                <button onclick="changeInterval(1)" id="int-btn-1" class="int-btn px-2.5 py-1 text-[11px] font-bold rounded-md transition-all text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">1H</button>
+                                <button onclick="changeInterval(3)" id="int-btn-3" class="int-btn px-2.5 py-1 text-[11px] font-bold rounded-md transition-all text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">3H</button>
+                                <button onclick="changeInterval(6)" id="int-btn-6" class="int-btn px-2.5 py-1 text-[11px] font-bold rounded-md transition-all text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">6H</button>
+                                <button onclick="changeInterval(12)" id="int-btn-12" class="int-btn px-2.5 py-1 text-[11px] font-bold rounded-md transition-all text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">12H</button>
+                                <button onclick="changeInterval(24)" id="int-btn-24" class="int-btn px-2.5 py-1 text-[11px] font-bold rounded-md transition-all text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">24H</button>
                             </div>
                         </div>
                     </div>
@@ -409,7 +404,20 @@ const getHtml = () => `<!DOCTYPE html>
                 });
         }
 
+        function updateIntervalUI(val) {
+            document.querySelectorAll('.int-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'dark:bg-zinc-600', 'shadow-sm', 'text-slate-900', 'dark:text-white');
+                btn.classList.add('text-slate-500', 'dark:text-slate-400');
+            });
+            const activeBtn = document.getElementById('int-btn-' + val);
+            if(activeBtn) {
+                activeBtn.classList.add('bg-white', 'dark:bg-zinc-600', 'shadow-sm', 'text-slate-900', 'dark:text-white');
+                activeBtn.classList.remove('text-slate-500', 'dark:text-slate-400');
+            }
+        }
+
         function changeInterval(val) {
+            updateIntervalUI(val);
             fetch('/api/admin/settings', {
                 method: 'POST',
                 body: JSON.stringify({ interval: parseInt(val) }),
@@ -419,8 +427,7 @@ const getHtml = () => `<!DOCTYPE html>
 
         fetch('/api/admin/settings').then(r => r.json()).then(data => {
             if (data.interval) {
-                const sel = document.getElementById('update-interval');
-                if (sel) sel.value = data.interval;
+                updateIntervalUI(data.interval);
             }
         });
 
