@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { parseSubscription, parseURI } from './parser';
+import { parseSubscription, parseURI, encodeBase64Utf8 } from './parser';
 import { tcpPing } from './tester';
 
 export interface Env {
@@ -562,7 +562,7 @@ app.get('/sub', async (c) => {
   ).all<{ raw_uri: string }>();
 
   const uris = results.map(r => r.raw_uri).join('\n');
-  return c.text(btoa(uris));
+  return c.text(encodeBase64Utf8(uris));
 });
 
 // Get Active Configs (JSON)

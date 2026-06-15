@@ -21,6 +21,14 @@ export function decodeBase64Utf8(str: string): string {
   }
 }
 
+export function encodeBase64Utf8(str: string): string {
+  try {
+    return btoa(unescape(encodeURIComponent(str)));
+  } catch (e) {
+    return btoa(str); // Fallback
+  }
+}
+
 export function parseSubscription(base64Data: string): string[] {
   try {
     let decoded = base64Data;
