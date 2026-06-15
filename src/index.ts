@@ -68,8 +68,14 @@ const getHtml = () => `<!DOCTYPE html>
         // Load configs
         function loadConfigs() {
             fetch('/api/configs')
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) throw new Error('API Error ' + res.status);
+                    return res.json();
+                })
                 .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
                     const container = document.getElementById('nodes-container');
                     container.innerHTML = '';
                     if(data.length === 0) container.innerHTML = '<p class="text-slate-400">No active nodes found. Paste a subscription link above and click Add & Test.</p>';
@@ -87,6 +93,9 @@ const getHtml = () => `<!DOCTYPE html>
                             </div>
                         \`;
                     });
+                })
+                .catch(err => {
+                    document.getElementById('nodes-container').innerHTML = \`<p class="text-red-400">Error loading nodes: \${err.message}. Please check if the Database is correctly created and bound.</p>\`;
                 });
         }
         loadConfigs();
@@ -131,10 +140,14 @@ app.get('/sub', async (c) => {
 
 // Get Active Configs (JSON)
 app.get('/api/configs', async (c) => {
-  const { results } = await c.env.DB.prepare(
-    "SELECT name, protocol, ping_ms, last_tested_at FROM configs WHERE status = 'active' AND fail_count < 3 ORDER BY ping_ms ASC"
-  ).all();
-  return c.json(results);
+  try {
+    const { results } = await c.env.DB.prepare(
+      "SELECT name, protocol, ping_ms, last_tested_at FROM configs WHERE status = 'active' AND fail_count < 3 ORDER BY ping_ms ASC"
+    ).all();
+    return c.json(results);
+  } catch (err: any) {
+    return c.json({ error: err.message }, 500);
+  }
 });
 
 // Admin Add Sub (Simplified)

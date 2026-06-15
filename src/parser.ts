@@ -8,12 +8,14 @@ export interface ParsedConfig {
 
 export function parseSubscription(base64Data: string): string[] {
   try {
-    // Some subs are plain text, some are base64
-    let decoded = '';
+    let decoded = base64Data;
     try {
-      decoded = atob(base64Data);
+      // Fix url-safe chars and padding
+      let b64 = base64Data.replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) { b64 += '='; }
+      decoded = atob(b64);
     } catch {
-      decoded = base64Data; // fallback
+      // fallback to raw text if it's not base64
     }
 
     return decoded.split('\n').map(line => line.trim()).filter(line => line.length > 0);
