@@ -217,14 +217,14 @@ const getHtml = () => `<!DOCTYPE html>
             applyLang();
         }
 
-        // Init
-        applyTheme();
-        applyLang();
-
         let allConfigs = [];
         let currentPage = 1;
         const itemsPerPage = 10;
         let allSubs = [];
+
+        // Init
+        applyTheme();
+        applyLang();
 
         document.getElementById('sub-link').value = window.location.origin + '/sub';
 
