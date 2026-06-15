@@ -29,18 +29,29 @@ jobs:
           sudo apt-get install jq -y
           
           echo "Checking for existing D1 database..."
+          # Hide wrangler.toml temporarily so wrangler d1 info doesn't read the dummy ID
+          mv wrangler.toml wrangler.toml.bak
+          
           DB_ID=$(npx wrangler d1 info sub-manager-db --json 2>/dev/null | jq -r '.uuid' || echo "")
           
           if [ -z "$DB_ID" ] || [ "$DB_ID" == "null" ]; then
             echo "Database not found. Creating a new one..."
-            npx wrangler d1 create sub-manager-db
-            DB_ID=$(npx wrangler d1 info sub-manager-db --json | jq -r '.uuid')
+            npx wrangler d1 create sub-manager-db > d1_out.txt
+            DB_ID=$(sed -n 's/.*database_id = "\(.*\)".*/\1/p' d1_out.txt)
           fi
+          
+          # Restore wrangler.toml
+          mv wrangler.toml.bak wrangler.toml
           
           echo "Database ID: $DB_ID"
           
-          # Inject the real DB ID into wrangler.toml
-          sed -i "s/00000000-0000-0000-0000-000000000000/$DB_ID/g" wrangler.toml
+          if [ -n "$DB_ID" ]; then
+            # Inject the real DB ID into wrangler.toml
+            sed -i "s/00000000-0000-0000-0000-000000000000/$DB_ID/g" wrangler.toml
+          else
+            echo "Failed to find or create Database ID."
+            exit 1
+          fi
           
           # Execute the schema (Ignore if it fails because tables might already exist)
           echo "Applying database schema..."
