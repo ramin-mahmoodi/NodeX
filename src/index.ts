@@ -732,9 +732,14 @@ app.post('/api/admin/subs/:id/update', async (c) => {
         const parsed = parseURI(uri);
         if (parsed && parsed.host) {
           await c.env.DB.prepare(`
-            INSERT INTO configs (sub_id, name, raw_uri, protocol, host, port)
-            VALUES (?, ?, ?, ?, ?, ?)
-            ON CONFLICT(raw_uri) DO UPDATE SET name=excluded.name, host=excluded.host, port=excluded.port
+              INSERT INTO configs (sub_id, name, raw_uri, protocol, host, port)
+              VALUES (?, ?, ?, ?, ?, ?)
+              ON CONFLICT(raw_uri) DO UPDATE SET 
+                name=excluded.name, 
+                host=excluded.host, 
+                port=excluded.port,
+                status = CASE WHEN configs.status = 'error' THEN 'pending' ELSE configs.status END,
+                fail_count = CASE WHEN configs.status = 'error' THEN 0 ELSE configs.fail_count END
           `).bind(sub.id, parsed.name, parsed.raw_uri, parsed.protocol, parsed.host, parsed.port).run();
         }
       }
@@ -797,6 +802,7 @@ async function runUpdateTask(env: Env) {
           if (parsed && parsed.host) {
             insertStmts.push(env.DB.prepare(`
               INSERT INTO configs (sub_id, name, raw_uri, protocol, host, port)
+              VALUES (?, ?, ?, ?, ?, ?)
               ON CONFLICT(raw_uri) DO UPDATE SET 
                 name=excluded.name, 
                 host=excluded.host, 
