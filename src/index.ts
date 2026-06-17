@@ -380,21 +380,23 @@ const getHtml = () => `<!DOCTYPE html>
         function renderSubs() {
             const container = document.getElementById('subs-container');
             if (!allSubs || allSubs.length === 0) {
-                container.innerHTML = \`<p class="text-slate-500 dark:text-slate-400 text-sm p-4 text-start" data-i18n="noSubs">\${i18n[currentLang].noSubs}</p>\`;
+                container.innerHTML = `<p class="text-slate-500 dark:text-slate-400 text-sm p-4 text-start" data-i18n="noSubs">${i18n[currentLang].noSubs}</p>`;
                 return;
             }
-            let html = \`<table class="w-full text-sm text-slate-600 dark:text-slate-300 text-\${currentLang === 'fa' ? 'right' : 'left'}" dir="ltr"><thead><tr class="ds-row"><th class="pb-3 text-left ds-table-head px-2">\${i18n[currentLang].urlHead}</th><th class="pb-3 text-right ds-table-head px-2">\${i18n[currentLang].actionHead}</th></tr></thead><tbody>\`;
+            let html = `<table class="w-full text-sm text-slate-600 dark:text-slate-300 text-${currentLang === 'fa' ? 'right' : 'left'}" dir="ltr"><thead><tr class="ds-row"><th class="pb-3 text-left ds-table-head px-2">${i18n[currentLang].urlHead}</th><th class="pb-3 text-right ds-table-head px-2">${i18n[currentLang].actionHead}</th></tr></thead><tbody>`;
             allSubs.forEach(s => {
-                html += \`<tr class="ds-row hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors">
-                    <td class="py-4 px-2 truncate max-w-[200px] sm:max-w-[150px] text-left font-medium text-slate-700 dark:text-slate-200" style="direction: ltr;" title="\${s.url}">\${s.url}</td>
+                html += `<tr class="ds-row hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors">
+                    <td class="py-4 px-2 truncate max-w-[200px] sm:max-w-[150px] text-left font-medium text-slate-700 dark:text-slate-200" style="direction: ltr;" title="${s.url}">${s.url}</td>
                     <td class="py-4 px-2">
                         <div class="flex items-center justify-end gap-2">
-                            <button onclick="updateSub(\${s.id})" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded-lg transition-colors text-xs font-semibold">\${i18n[currentLang].updateBtn}</button>
-                            <button onclick="testSub(\${s.id})" class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 px-3 py-1.5 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded-lg transition-colors text-xs font-semibold">\${i18n[currentLang].testBtn}</button>
-                            <button onclick="deleteSub(\${s.id})" class="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 px-3 py-1.5 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition-colors text-xs font-semibold">\${i18n[currentLang].deleteBtn}</button>
+                            <button onclick="copyToClipboard('${s.url}')" class="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors text-xs font-semibold">Copy</button>
+                            <button onclick="editSub(${s.id}, '${s.url}')" class="text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 px-3 py-1.5 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 rounded-lg transition-colors text-xs font-semibold">Edit</button>
+                            <button onclick="updateSub(${s.id})" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded-lg transition-colors text-xs font-semibold">${i18n[currentLang].updateBtn}</button>
+                            <button onclick="testSub(${s.id})" class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 px-3 py-1.5 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded-lg transition-colors text-xs font-semibold">${i18n[currentLang].testBtn}</button>
+                            <button onclick="deleteSub(${s.id})" class="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 px-3 py-1.5 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition-colors text-xs font-semibold">${i18n[currentLang].deleteBtn}</button>
                         </div>
                     </td>
-                </tr>\`;
+                </tr>`;
             });
             html += '</tbody></table>';
             container.innerHTML = html;
@@ -521,19 +523,30 @@ const getHtml = () => `<!DOCTYPE html>
             const rect = event.currentTarget.getBoundingClientRect();
             
             const popoverWidth = 240;
-            let left = rect.left + window.scrollX + (rect.width / 2) - (popoverWidth / 2);
-            let top = rect.bottom + window.scrollY + 12;
+            // Place to the right of the button
+            let left = rect.right + 12;
+            let top = rect.top + window.scrollY - 100;
 
+            if (left + popoverWidth > window.innerWidth + window.scrollX - 10) {
+                // If it doesn't fit on the right, place it on the left
+                left = rect.left + window.scrollX - popoverWidth - 12;
+            }
             if (left < 10) left = 10;
-            if (left + popoverWidth > window.innerWidth + window.scrollX - 10) left = window.innerWidth + window.scrollX - popoverWidth - 10;
             
             popover.style.left = left + 'px';
             popover.style.top = top + 'px';
 
             const arrow = document.getElementById('qr-arrow');
             if (arrow) {
-                const arrowLeft = (rect.left + window.scrollX + rect.width / 2) - left;
-                arrow.style.left = arrowLeft + 'px';
+                // Move arrow to the left or right side depending on where popover is
+                arrow.className = 'absolute w-[11px] h-[11px] rotate-45 bg-white dark:bg-[#1a1a1a] border-slate-200 dark:border-slate-800 z-20 transition-all duration-200';
+                if (left > rect.right) {
+                    // Popover is on the right
+                    arrow.classList.add('-left-[6px]', 'top-[115px]', 'border-l', 'border-b');
+                } else {
+                    // Popover is on the left
+                    arrow.classList.add('-right-[6px]', 'top-[115px]', 'border-r', 'border-t');
+                }
             }
 
             popover.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
@@ -558,7 +571,7 @@ app.get('/', (c) => c.html(getHtml()));
 // Output Base64 Subscription
 app.get('/sub', async (c) => {
   const { results } = await c.env.DB.prepare(
-    "SELECT raw_uri FROM configs WHERE status IN ('active', 'pending') AND fail_count < 3 ORDER BY CASE WHEN status='pending' THEN 99999 ELSE ping_ms END ASC"
+    "SELECT raw_uri FROM configs WHERE status IN ('active', 'pending') AND fail_count < 3 GROUP BY host, port, protocol ORDER BY CASE WHEN status='pending' THEN 99999 ELSE ping_ms END ASC"
   ).all<{ raw_uri: string }>();
 
   const uris = results.map(r => r.raw_uri).join('\n');
@@ -569,7 +582,7 @@ app.get('/sub', async (c) => {
 app.get('/api/configs', async (c) => {
   try {
     const { results } = await c.env.DB.prepare(
-      "SELECT name, protocol, ping_ms, raw_uri, last_tested_at, status FROM configs WHERE status IN ('active', 'pending') AND fail_count < 3 ORDER BY CASE WHEN status='pending' THEN 99999 ELSE ping_ms END ASC"
+      "SELECT name, protocol, ping_ms, raw_uri, last_tested_at, status FROM configs WHERE status IN ('active', 'pending') AND fail_count < 3 GROUP BY host, port, protocol ORDER BY CASE WHEN status='pending' THEN 99999 ELSE ping_ms END ASC"
     ).all();
     return c.json(results);
   } catch (err: any) {
@@ -596,6 +609,18 @@ app.delete('/api/admin/subs/:id', async (c) => {
     return c.json({ success: true });
   } catch (e) {
     return c.json({ error: 'Failed to delete' }, 500);
+  }
+});
+
+// Admin Edit Sub
+app.put('/api/admin/subs/:id', async (c) => {
+  const id = c.req.param('id');
+  const body = await c.req.json();
+  try {
+    await c.env.DB.prepare("UPDATE subscriptions SET url = ? WHERE id = ?").bind(body.url, id).run();
+    return c.json({ success: true });
+  } catch (e) {
+    return c.json({ error: 'Failed to update' }, 500);
   }
 });
 
