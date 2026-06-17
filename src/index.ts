@@ -595,22 +595,30 @@ const getHtml = () => `<!DOCTYPE html>
             const popoverHeight = 250; // approximate
             
             let left;
+            let placedRight = false;
+
             if (currentLang === 'en') {
-                // English: try right first
-                left = rect.right + 12;
-                if (left + popoverWidth > window.innerWidth + window.scrollX - 10) {
+                // English: ALWAYS try right first
+                left = rect.right + window.scrollX + 12;
+                placedRight = true;
+                // Only fall back to left if right has NO space AND left has ENOUGH space
+                if (left + popoverWidth > window.innerWidth + window.scrollX - 10 && rect.left > popoverWidth + 20) {
                     left = rect.left + window.scrollX - popoverWidth - 12;
+                    placedRight = false;
                 }
             } else {
-                // Persian/RTL: try left first
+                // Persian/RTL: ALWAYS try left first
                 left = rect.left + window.scrollX - popoverWidth - 12;
-                if (left < 10) {
-                    left = rect.right + 12;
+                placedRight = false;
+                // Only fall back to right if left has NO space AND right has ENOUGH space
+                if (left < window.scrollX + 10 && window.innerWidth - rect.right > popoverWidth + 20) {
+                    left = rect.right + window.scrollX + 12;
+                    placedRight = true;
                 }
             }
             
-            // Constrain left to screen
-            if (left < 10) left = 10;
+            // Constrain left to screen as a last resort
+            if (left < window.scrollX + 10) left = window.scrollX + 10;
             if (left + popoverWidth > window.innerWidth + window.scrollX - 10) {
                 left = window.innerWidth + window.scrollX - popoverWidth - 10;
             }
@@ -634,7 +642,7 @@ const getHtml = () => `<!DOCTYPE html>
                 arrow.className = 'absolute w-[11px] h-[11px] rotate-45 bg-white dark:bg-[#1a1a1a] border-slate-200 dark:border-slate-800 z-20 transition-all duration-200';
                 arrow.style.top = (arrowTop - 5) + 'px'; // -5 for half of arrow height
                 
-                if (left > rect.left) {
+                if (placedRight) {
                     // Popover is on the right, arrow on left edge
                     arrow.classList.add('-left-[6px]', 'border-l', 'border-b');
                 } else {
