@@ -686,7 +686,7 @@ app.post('/api/admin/update', async (c) => {
       const text = await resp.text();
       let uris = parseSubscription(text);
       uris = uris.sort(() => Math.random() - 0.5);
-      uris = uris.slice(0, 3000);
+      uris = uris.slice(0, 8000);
 
       const insertStmts = [];
       for (const uri of uris) {
@@ -713,8 +713,8 @@ app.post('/api/admin/update', async (c) => {
     // Trigger the ping phase in background
     c.executionCtx.waitUntil((async () => {
       try {
-        const { results: configs } = await c.env.DB.prepare("SELECT id, host, port FROM configs ORDER BY ifnull(last_tested_at, '1970-01-01') ASC LIMIT 1500").all<{ id: number, host: string, port: number }>();
-        const batchSize = 50;
+        const { results: configs } = await c.env.DB.prepare("SELECT id, host, port FROM configs ORDER BY ifnull(last_tested_at, '1970-01-01') ASC LIMIT 4000").all<{ id: number, host: string, port: number }>();
+        const batchSize = 200;
         for (let i = 0; i < configs.length; i += batchSize) {
           const batch = configs.slice(i, i + batchSize);
           const batchResults = await Promise.all(batch.map(async (cfg) => {
@@ -752,7 +752,7 @@ app.post('/api/admin/subs/:id/update', async (c) => {
       let uris = parseSubscription(text);
       // Shuffle to get a random sample of all protocols instead of just the top ones
       uris = uris.sort(() => Math.random() - 0.5);
-      uris = uris.slice(0, 3000); // Limit to prevent D1 overload
+      uris = uris.slice(0, 8000); // Limit to prevent D1 overload
       for (const uri of uris) {
         const parsed = parseURI(uri);
         if (parsed && parsed.host) {
@@ -819,7 +819,7 @@ async function runUpdateTask(env: Env) {
         let uris = parseSubscription(text);
         // Shuffle to get a random sample of all protocols
         uris = uris.sort(() => Math.random() - 0.5);
-        uris = uris.slice(0, 3000); // Limit to prevent D1 overload
+        uris = uris.slice(0, 8000); // Limit to prevent D1 overload
 
         const insertStmts = [];
         for (const uri of uris) {
@@ -846,10 +846,10 @@ async function runUpdateTask(env: Env) {
     }
 
     // Ping test
-    const { results: configs } = await env.DB.prepare("SELECT id, host, port FROM configs ORDER BY ifnull(last_tested_at, '1970-01-01') ASC LIMIT 1500").all<{ id: number, host: string, port: number }>();
+    const { results: configs } = await env.DB.prepare("SELECT id, host, port FROM configs ORDER BY ifnull(last_tested_at, '1970-01-01') ASC LIMIT 4000").all<{ id: number, host: string, port: number }>();
     
     // Batch pinging to prevent connection/memory limits
-    const batchSize = 50;
+    const batchSize = 200;
     for (let i = 0; i < configs.length; i += batchSize) {
       const batch = configs.slice(i, i + batchSize);
       const batchResults = await Promise.all(batch.map(async (cfg) => {
