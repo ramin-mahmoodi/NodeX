@@ -139,8 +139,16 @@ const getHtml = () => `<!DOCTYPE html>
         
         <div class="ds-card space-y-4">
             <h2 class="text-lg font-semibold" data-i18n="pubSub">Public Subscription Link</h2>
-            <div class="flex gap-4">
-                <input type="text" readonly value="https://<your-worker-url>/sub" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white dir-ltr font-medium" style="direction: ltr;" id="sub-link">
+            <div class="relative flex gap-4">
+                <input type="text" readonly value="https://<your-worker-url>/sub" class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-4 pr-24 py-3 text-sm text-white dir-ltr font-medium" style="direction: ltr;" id="sub-link">
+                <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 bg-slate-800">
+                    <button onclick="editMainSub()" class="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-slate-700" title="Edit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                    </button>
+                    <button onclick="copyToClipboard(document.getElementById('sub-link').value)" class="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-slate-700" title="Copy">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    </button>
+                </div>
             </div>
             <p class="text-slate-400 text-xs" data-i18n="pubSubDesc">Use this link in your V2Ray client. It contains all active, TCP-pinged nodes.</p>
             <div class="mt-4 flex flex-wrap items-center gap-3">
@@ -265,11 +273,30 @@ const getHtml = () => `<!DOCTYPE html>
         applyTheme();
         applyLang();
 
-        const subLinkVal = window.location.origin + '/sub';
-        document.getElementById('sub-link').value = subLinkVal;
-        document.getElementById('btn-v2rayng').href = 'v2rayng://install-config?url=' + encodeURIComponent(subLinkVal);
-        document.getElementById('btn-v2box').href = 'v2box://install-sub?url=' + encodeURIComponent(subLinkVal) + '&name=NodeX';
-        document.getElementById('btn-shadowrocket').href = 'shadowrocket://add/sub://' + btoa(subLinkVal) + '?remark=NodeX';
+        const defaultSubUrl = window.location.origin + '/sub';
+        let subLinkVal = localStorage.getItem('nodex_main_sub') || defaultSubUrl;
+        
+        function updateMainSubLinks(val) {
+            document.getElementById('sub-link').value = val;
+            document.getElementById('btn-v2rayng').href = 'v2rayng://install-config?url=' + encodeURIComponent(val);
+            document.getElementById('btn-v2box').href = 'v2box://install-sub?url=' + encodeURIComponent(val) + '&name=NodeX';
+            document.getElementById('btn-shadowrocket').href = 'shadowrocket://add/sub://' + btoa(val) + '?remark=NodeX';
+        }
+
+        function editMainSub() {
+            const current = document.getElementById('sub-link').value;
+            const newUrl = prompt('Enter custom subscription link (or leave blank to reset):', current);
+            if (newUrl === null) return;
+            if (newUrl.trim() === '') {
+                localStorage.removeItem('nodex_main_sub');
+                updateMainSubLinks(defaultSubUrl);
+            } else {
+                localStorage.setItem('nodex_main_sub', newUrl.trim());
+                updateMainSubLinks(newUrl.trim());
+            }
+        }
+        
+        updateMainSubLinks(subLinkVal);
 
         function loadConfigs() {
             fetch('/api/configs')
@@ -400,6 +427,16 @@ const getHtml = () => `<!DOCTYPE html>
             });
             html += '</tbody></table>';
             container.innerHTML = html;
+        }
+
+        function editSub(id, oldUrl) {
+            const newUrl = prompt('Enter new subscription URL:', oldUrl);
+            if (!newUrl || newUrl === oldUrl) return;
+            fetch('/api/admin/subs/' + id, { 
+                method: 'PUT',
+                body: JSON.stringify({ url: newUrl }),
+                headers: { 'Content-Type': 'application/json' }
+            }).then(() => loadSubs());
         }
         
         function updateSub(id) {
