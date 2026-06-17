@@ -592,30 +592,54 @@ const getHtml = () => `<!DOCTYPE html>
             const rect = event.currentTarget.getBoundingClientRect();
             
             const popoverWidth = 240;
-            // Place to the left of the button
-            let left = rect.left + window.scrollX - popoverWidth - 12;
-            let top = rect.top + window.scrollY - 100;
-
-            if (left < 10) {
-                // If it doesn't fit on the left, place it on the right
+            const popoverHeight = 250; // approximate
+            
+            let left;
+            if (currentLang === 'en') {
+                // English: try right first
                 left = rect.right + 12;
+                if (left + popoverWidth > window.innerWidth + window.scrollX - 10) {
+                    left = rect.left + window.scrollX - popoverWidth - 12;
+                }
+            } else {
+                // Persian/RTL: try left first
+                left = rect.left + window.scrollX - popoverWidth - 12;
+                if (left < 10) {
+                    left = rect.right + 12;
+                }
             }
+            
+            // Constrain left to screen
+            if (left < 10) left = 10;
             if (left + popoverWidth > window.innerWidth + window.scrollX - 10) {
                 left = window.innerWidth + window.scrollX - popoverWidth - 10;
             }
             
+            // Calculate top so it centers vertically, but constrain to screen
+            let top = rect.top + window.scrollY + (rect.height / 2) - (popoverHeight / 2);
+            // Constrain top to screen bounds
+            top = Math.max(window.scrollY + 10, Math.min(top, window.scrollY + window.innerHeight - popoverHeight - 10));
+
             popover.style.left = left + 'px';
             popover.style.top = top + 'px';
 
             const arrow = document.getElementById('qr-arrow');
             if (arrow) {
-                // Move arrow to the left or right side depending on where popover is
+                const buttonCenterY = rect.top + window.scrollY + (rect.height / 2);
+                let arrowTop = buttonCenterY - top;
+                
+                // Constrain arrow to stay within popover bounds
+                arrowTop = Math.max(10, Math.min(arrowTop, popoverHeight - 20));
+
                 arrow.className = 'absolute w-[11px] h-[11px] rotate-45 bg-white dark:bg-[#1a1a1a] border-slate-200 dark:border-slate-800 z-20 transition-all duration-200';
-                if (left > rect.right - 100) { // If it's placed on the right
-                    arrow.classList.add('-left-[6px]', 'top-[115px]', 'border-l', 'border-b');
+                arrow.style.top = (arrowTop - 5) + 'px'; // -5 for half of arrow height
+                
+                if (left > rect.left) {
+                    // Popover is on the right, arrow on left edge
+                    arrow.classList.add('-left-[6px]', 'border-l', 'border-b');
                 } else {
-                    // Popover is on the left
-                    arrow.classList.add('-right-[6px]', 'top-[115px]', 'border-r', 'border-t');
+                    // Popover is on the left, arrow on right edge
+                    arrow.classList.add('-right-[6px]', 'border-r', 'border-t');
                 }
             }
 
