@@ -8,7 +8,9 @@ export interface ParsedConfig {
 
 export function decodeBase64Utf8(str: string): string {
   try {
-    let b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+    // Remove all whitespace characters (spaces, tabs, newlines)
+    let b64 = str.replace(/\s+/g, '');
+    b64 = b64.replace(/-/g, '+').replace(/_/g, '/');
     while (b64.length % 4) { b64 += '='; }
     const binary = atob(b64);
     const bytes = new Uint8Array(binary.length);
