@@ -140,9 +140,9 @@ const getHtml = () => `<!DOCTYPE html>
         <div class="ds-card space-y-4">
             <h2 class="text-lg font-semibold" data-i18n="pubSub">Public Subscription Link</h2>
             <div class="relative flex gap-4">
-                <input type="text" readonly value="https://<your-worker-url>/sub" class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-4 pr-24 py-3 text-sm text-white dir-ltr font-medium" style="direction: ltr;" id="sub-link">
+                <input type="text" readonly value="https://<your-worker-url>/sub" class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-4 pr-24 py-3 text-sm text-white dir-ltr font-medium focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all" style="direction: ltr;" id="sub-link">
                 <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 bg-slate-800">
-                    <button onclick="editMainSub()" class="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-slate-700" title="Edit">
+                    <button id="main-sub-edit-btn" onclick="editMainSub()" class="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-slate-700" title="Edit">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
                     </button>
                     <button onclick="copyToClipboard(document.getElementById('sub-link').value)" class="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-slate-700" title="Copy">
@@ -284,15 +284,29 @@ const getHtml = () => `<!DOCTYPE html>
         }
 
         function editMainSub() {
-            const current = document.getElementById('sub-link').value;
-            const newUrl = prompt('Enter custom subscription link (or leave blank to reset):', current);
-            if (newUrl === null) return;
-            if (newUrl.trim() === '') {
-                localStorage.removeItem('nodex_main_sub');
-                updateMainSubLinks(defaultSubUrl);
+            const input = document.getElementById('sub-link');
+            const btn = document.getElementById('main-sub-edit-btn');
+            const isEditing = !input.hasAttribute('readonly');
+            
+            if (isEditing) {
+                // Save action
+                const newUrl = input.value.trim();
+                if (newUrl === '') {
+                    localStorage.removeItem('nodex_main_sub');
+                    updateMainSubLinks(defaultSubUrl);
+                } else {
+                    localStorage.setItem('nodex_main_sub', newUrl);
+                    updateMainSubLinks(newUrl);
+                }
+                input.setAttribute('readonly', 'readonly');
+                input.blur();
+                btn.innerHTML = \`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>\`;
             } else {
-                localStorage.setItem('nodex_main_sub', newUrl.trim());
-                updateMainSubLinks(newUrl.trim());
+                // Start edit action
+                input.removeAttribute('readonly');
+                input.focus();
+                input.setSelectionRange(0, input.value.length);
+                btn.innerHTML = \`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>\`;
             }
         }
         
@@ -413,11 +427,13 @@ const getHtml = () => `<!DOCTYPE html>
             let html = \`<table class="w-full text-sm text-slate-600 dark:text-slate-300 text-\${currentLang === 'fa' ? 'right' : 'left'}" dir="ltr"><thead><tr class="ds-row"><th class="pb-3 text-left ds-table-head px-2">\${i18n[currentLang].urlHead}</th><th class="pb-3 text-right ds-table-head px-2">\${i18n[currentLang].actionHead}</th></tr></thead><tbody>\`;
             allSubs.forEach(s => {
                 html += \`<tr class="ds-row hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors">
-                    <td class="py-4 px-2 truncate max-w-[200px] sm:max-w-[150px] text-left font-medium text-slate-700 dark:text-slate-200" style="direction: ltr;" title="\${s.url}">\${s.url}</td>
+                    <td class="py-4 px-2 text-left font-medium text-slate-700 dark:text-slate-200" style="direction: ltr;">
+                        <input type="text" id="sub-input-\${s.id}" readonly value="\${s.url}" title="\${s.url}" class="w-full bg-transparent border-none outline-none truncate focus:bg-slate-100 dark:focus:bg-slate-800 focus:ring-1 focus:ring-blue-500 rounded px-2 py-1 transition-all">
+                    </td>
                     <td class="py-4 px-2">
                         <div class="flex items-center justify-end gap-2">
                             <button onclick="copyToClipboard('\${s.url}')" class="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors text-xs font-semibold">Copy</button>
-                            <button onclick="editSub(\${s.id}, '\${s.url}')" class="text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 px-3 py-1.5 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 rounded-lg transition-colors text-xs font-semibold">Edit</button>
+                            <button id="sub-edit-btn-\${s.id}" onclick="editSub(\${s.id})" class="text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 px-3 py-1.5 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 rounded-lg transition-colors text-xs font-semibold">Edit</button>
                             <button onclick="updateSub(\${s.id})" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded-lg transition-colors text-xs font-semibold">\${i18n[currentLang].updateBtn}</button>
                             <button onclick="testSub(\${s.id})" class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 px-3 py-1.5 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded-lg transition-colors text-xs font-semibold">\${i18n[currentLang].testBtn}</button>
                             <button onclick="deleteSub(\${s.id})" class="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 px-3 py-1.5 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition-colors text-xs font-semibold">\${i18n[currentLang].deleteBtn}</button>
@@ -429,14 +445,30 @@ const getHtml = () => `<!DOCTYPE html>
             container.innerHTML = html;
         }
 
-        function editSub(id, oldUrl) {
-            const newUrl = prompt('Enter new subscription URL:', oldUrl);
-            if (!newUrl || newUrl === oldUrl) return;
-            fetch('/api/admin/subs/' + id, { 
-                method: 'PUT',
-                body: JSON.stringify({ url: newUrl }),
-                headers: { 'Content-Type': 'application/json' }
-            }).then(() => loadSubs());
+        function editSub(id) {
+            const input = document.getElementById('sub-input-' + id);
+            const btn = document.getElementById('sub-edit-btn-' + id);
+            const isEditing = !input.hasAttribute('readonly');
+            
+            if (isEditing) {
+                // Save
+                const newUrl = input.value.trim();
+                input.setAttribute('readonly', 'readonly');
+                input.classList.add('truncate');
+                btn.innerText = 'Edit';
+                fetch('/api/admin/subs/' + id, { 
+                    method: 'PUT',
+                    body: JSON.stringify({ url: newUrl }),
+                    headers: { 'Content-Type': 'application/json' }
+                }).then(() => loadSubs());
+            } else {
+                // Start edit
+                input.removeAttribute('readonly');
+                input.classList.remove('truncate');
+                input.focus();
+                input.setSelectionRange(0, input.value.length);
+                btn.innerText = 'Save';
+            }
         }
         
         function updateSub(id) {
