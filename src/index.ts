@@ -380,23 +380,23 @@ const getHtml = () => `<!DOCTYPE html>
         function renderSubs() {
             const container = document.getElementById('subs-container');
             if (!allSubs || allSubs.length === 0) {
-                container.innerHTML = `<p class="text-slate-500 dark:text-slate-400 text-sm p-4 text-start" data-i18n="noSubs">${i18n[currentLang].noSubs}</p>`;
+                container.innerHTML = \`<p class="text-slate-500 dark:text-slate-400 text-sm p-4 text-start" data-i18n="noSubs">\${i18n[currentLang].noSubs}</p>\`;
                 return;
             }
-            let html = `<table class="w-full text-sm text-slate-600 dark:text-slate-300 text-${currentLang === 'fa' ? 'right' : 'left'}" dir="ltr"><thead><tr class="ds-row"><th class="pb-3 text-left ds-table-head px-2">${i18n[currentLang].urlHead}</th><th class="pb-3 text-right ds-table-head px-2">${i18n[currentLang].actionHead}</th></tr></thead><tbody>`;
+            let html = \`<table class="w-full text-sm text-slate-600 dark:text-slate-300 text-\${currentLang === 'fa' ? 'right' : 'left'}" dir="ltr"><thead><tr class="ds-row"><th class="pb-3 text-left ds-table-head px-2">\${i18n[currentLang].urlHead}</th><th class="pb-3 text-right ds-table-head px-2">\${i18n[currentLang].actionHead}</th></tr></thead><tbody>\`;
             allSubs.forEach(s => {
-                html += `<tr class="ds-row hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors">
-                    <td class="py-4 px-2 truncate max-w-[200px] sm:max-w-[150px] text-left font-medium text-slate-700 dark:text-slate-200" style="direction: ltr;" title="${s.url}">${s.url}</td>
+                html += \`<tr class="ds-row hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors">
+                    <td class="py-4 px-2 truncate max-w-[200px] sm:max-w-[150px] text-left font-medium text-slate-700 dark:text-slate-200" style="direction: ltr;" title="\${s.url}">\${s.url}</td>
                     <td class="py-4 px-2">
                         <div class="flex items-center justify-end gap-2">
-                            <button onclick="copyToClipboard('${s.url}')" class="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors text-xs font-semibold">Copy</button>
-                            <button onclick="editSub(${s.id}, '${s.url}')" class="text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 px-3 py-1.5 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 rounded-lg transition-colors text-xs font-semibold">Edit</button>
-                            <button onclick="updateSub(${s.id})" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded-lg transition-colors text-xs font-semibold">${i18n[currentLang].updateBtn}</button>
-                            <button onclick="testSub(${s.id})" class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 px-3 py-1.5 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded-lg transition-colors text-xs font-semibold">${i18n[currentLang].testBtn}</button>
-                            <button onclick="deleteSub(${s.id})" class="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 px-3 py-1.5 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition-colors text-xs font-semibold">${i18n[currentLang].deleteBtn}</button>
+                            <button onclick="copyToClipboard('\${s.url}')" class="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors text-xs font-semibold">Copy</button>
+                            <button onclick="editSub(\${s.id}, '\${s.url}')" class="text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 px-3 py-1.5 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 rounded-lg transition-colors text-xs font-semibold">Edit</button>
+                            <button onclick="updateSub(\${s.id})" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded-lg transition-colors text-xs font-semibold">\${i18n[currentLang].updateBtn}</button>
+                            <button onclick="testSub(\${s.id})" class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 px-3 py-1.5 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded-lg transition-colors text-xs font-semibold">\${i18n[currentLang].testBtn}</button>
+                            <button onclick="deleteSub(\${s.id})" class="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 px-3 py-1.5 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition-colors text-xs font-semibold">\${i18n[currentLang].deleteBtn}</button>
                         </div>
                     </td>
-                </tr>`;
+                </tr>\`;
             });
             html += '</tbody></table>';
             container.innerHTML = html;
